@@ -45,7 +45,7 @@
     %% The amssymb package provides various useful mathematical symbols
     \usepackage{amssymb}
     \usepackage{amsmath}
-    \usepackage{cleveref}
+    \usepackage[capitalize]{cleveref}
     %% The amsthm package provides extended theorem environments
     %% \usepackage{amsthm}
 
@@ -139,11 +139,11 @@
         Firstly, $y(\vr{x})$ is usually onerous to obtain, from pilot plant, laboratory or simulation. Therefore mitigating the input variables to be controlled and monitored is disproportionately advantageous.
         
         Secondly, visualisation and analysis is far easier and more fruitful in a low dimensional space.
-        Indeed there is epistemilogical value in model-order reduction for its own sake, and to guide or inspire advances in theory or modelling.
+        There is epistemilogical value in model-order reduction for its own sake, and to inspire and guide advances in theory or modelling.
         
-        Thirdly, refined examination of the response throughout the input space demands an ensemble of results $y(\vr{x})$ whose numerosity grows exponentially with \M{M}. Worse still, the basic geometry of high-dimensional space contains some nasty surprises, collectively known as the curse of dimensionality. In particular, nearly all the hypervolume of a high-dimensional input space resides proximate to its boundary hypersurface. Taken without prejudice, the input hypervolume consists almost entirely of anomalies, flung to the outer reaches and extremal in one input dimension or other. The curse thereby manifests as a kind of engineering paranoia: failure (represented by extremal conditions) becomes virtually inevitable as ever more inputs are measured or modelled.
+        Thirdly, refined examination of the response throughout the input space demands an ensemble of results $y(\vr{x})$ whose numerosity grows exponentially with \M{M}. Worse still, the basic geometry of high-dimensional space contains some nasty surprises, collectively known as the curse of dimensionality. In particular, nearly all the hypervolume of a high-dimensional input space resides proximate to its boundary hypersurface. Taken without prejudice, the input hypervolume consists almost entirely of anomalies, flung to the outer reaches and extremal in one input dimension or other. The curse thus manifests as a kind of engineering paranoia: failure (represented by extremal conditions) becomes almost inevitable as ever more inputs are measured or modelled.
 
-        The antidote to this perceived curse is to infer that monitoring more inputs inevitably diminishes their relevance and/or mutual independence. The cure is to reduce the inputs to a set which is both mutually independent and highly relevant to the response. Topologically this corresponds to sweeping naively sampled input points away from the faces of a sampling hypercube. Most of the sample points get swept towards the heart of the input space, where operating conditions are normal and safe. The few remaining input samples get swept towards selected corners of the input hypercube, representing unsafe conditions in which several inputs record anomalous values simultaneously. Heuristically this captures failure due to inscrutably arcane causes, which is first detected in several measured variables at once, as well as failure due to unsafe levels in a single highly relevant input. Model order reduction basically evacuates then excises those regions of input space which are irrelevant to the response, or represent impossible combinations of dependent inputs. This can only by achieved by a principled analysis of the response $y(\vr{x})$ which detects both irrelevance and dependence. Which is dauntingly hard for all the same reasons it is so sorely needed.
+        The antidote to this perceived curse is to infer that monitoring more inputs must diminish their mutual independence or their relevance. The cure is to reduce the inputs to a set which is both mutually independent and highly relevant to the response. Topologically this corresponds to sweeping naively sampled input points away from the faces of a sampling hypercube. Most of the sample points get swept towards the heart of the input space, where operating conditions are normal and safe. The few remaining input samples get swept towards selected corners of the input hypercube, representing unsafe conditions in which several inputs record anomalous values simultaneously. Heuristically this captures failure due to inscrutably arcane causes, which is first detected in several measured variables at once, as well as failure due to unsafe levels in a single highly relevant input. Model order reduction basically evacuates then excises those regions of input space which are irrelevant to the response, or represent impossible combinations of dependent inputs. This can only by achieved by a principled analysis of the response $y(\vr{x})$ which detects both irrelevance and dependence. Which is dauntingly hard for all the same reasons it is so sorely needed.
 
         \subsection{Gaussian Process Surrogate}
             In the first instance, the difficulty and expense in obtaining and analyzing response data is mitigated by adopting a surrogate or emulator. Perhaps the most informative and general of these is the Gaussian Process (GP), widely investigated and employed over the past few decades. The response $y(\vr{x})$ to arbitrarily fixed input is modelled as the sum $f(\vr{x})+e(\vr{x})$ of two Gaussian random variables encapsulating coherent signal and incoherent noise. The latter is characterised by a zero-mean distribution which is independent of the input:
@@ -168,9 +168,20 @@
             Modes of response oscillating rapidly with $\vr{x}$ are intepreted as noise by the GP, as the kernel smoothes $y$ into $f$. Such regularization is often, but not always, desirable, to avoid wildly unreliable interpolation of an overfit regression. We shall expand on this point later.
 
         \subsection{Kernel Optimization}
-            The cure to the curse of dimensionality is to find orthogonal rotation matrix $\Theta$ and diagonal lengthscale matrix $\Lambda$ which best fit observed responses $y(\vr{X})$. The largest lengthscales in $\Lambda$ mark the least relevant directions, to be pruned. However, the best fit must optimize $M(M+1)/2+2$ hyperparameters simultaneously to determine $\Theta, \Lambda, \sigma^{2}_\vr{f}$ and $\sigma^{2}_\vr{e}$. A directed optimization of such numerosity is almost bound to get bogged down in local optima. Grid search is astronomically expensive $O(\exp(M(M+1)/2)$, likewise any random sampling which is not hopelessly sparse. Perhaps for these reasons, $\Theta$ has always been fixed as identity in the literature. The lengthscales $\Lambda$ are also usually identical (multiplied by constant), furnishing a radial basis function (RBF) kernel. The few studies where $\Lambda$ is not identical speak of an automatic relevance determination (ARD) kernel. Obviously this was named with model order reduction in mind. However, admitting no rotation $\Theta$ severely restricts the reductions available. If relevant inputs are mutually dependent, they must all be retained. Rotation combines them into a low dimensional subspace.
+            The cure to the curse of dimensionality is to find orthogonal rotation matrix $\Theta$ and diagonal lengthscale matrix $\Lambda$ which best fit observed responses $y(\vr{X})$. The largest lengthscales in $\Lambda$ mark the least relevant directions, to be pruned. However, the best fit must optimize $M(M+1)/2+2$ hyperparameters simultaneously to determine $\Theta, \Lambda, \sigma^{2}_\vr{f}$ and $\sigma^{2}_\vr{e}$. An exploitative, directed optimization of such numerosity is almost bound to get bogged down in local optima. Exploratory grid search is astronomically expensive $O(\exp(M(M+1)/2)$, likewise any random sampling which is not hopelessly sparse. Perhaps for these reasons, $\Theta$ has always been fixed as identity in the literature. The lengthscales $\Lambda$ are also usually identical (multiplied by constant), furnishing a radial basis function (RBF) kernel. The few studies where $\Lambda$ is not identical speak of an automatic relevance determination (ARD) kernel. Obviously this was named with model order reduction in mind. However, admitting no rotation $\Theta$ severely restricts the reductions available. If relevant inputs are mutually dependent, they must all be retained. Rotation, on the contrary, combines them into a low dimensional subspace.
 
         \subsection{Global Sensitivity Analysis}
+            This paper proposes to achieve kernel optimization indirectly, via global sensitivity analysis (GSA).
+            The surrogate expectation
+            \begin{equation}
+                \ev{y(\vr{x})} = \ev{f(\vr{x})} \deqr \bar{f}(\vr{x})
+            \end{equation}
+            has a variation (over $\vr{x} \in \st{R}^{M}$) which can be apportioned by Sobol' index
+            \begin{equation}
+                S_{\vr{m}}((\Theta)_{\vr{m}\times\vr{M}}) \deq \var{\bar{f}(\vr{x}) \vert (\Theta \vr{x})_{\vr{m}}} / \var{\bar{f}(\vr{x})} \leq 1
+            \end{equation}
+            to subspaces $(\Theta \vr{x})_{\vr{m}}$ of dimension $m\leq M$. These may be calculated analytically for the exponential quadratic kernel used here. To cure to the curse of dimensionality is to find $(\Theta)_{\vr{m}\times\vr{M}}$ such that $S_{\vr{m}} \approx 1$ for $m\ll M$. The rotation sub-matrix $(\Theta)_{\vr{m}\times\vr{M}}$ has a manageable number of elements if $m$ is small. This paper takes the most economical approach,maximizing $S_{\vr{m}}$ for $m=1,\ldots,M$ in turn, to find the most relevant direction, then the second most relevant, and so on. Other approaches are considered in \cref{sec:Discussion}.
+
 
     \section{Methodology} \label{sec:Method}
         Let $\vr{X}$ be the $(N \times M)$ design matrix of observed inputs eliciting the $N \times 1$ response $y(\vr{X})$. The observations are standardized such that
@@ -273,7 +284,7 @@
 
             Conditional variances may now be calculated as
             \begin{equation} \label{eq:Method:GSA:DmDef}
-                D_{\vr{m}} \deq \var{f_{\vr{m}}((\vr{u})_{\vr{m}})}
+                D_{\vr{m}}((\Theta)_{\vr{m}\times\vr{M}}) \deq \var{f_{\vr{m}}((\vr{u})_{\vr{m}})}
                 = \frac {\vr{g}^{\intercal} \; \vr{W}_{\vr{m}} \; \vr{g}}
                     {\modulus{2(\Sigma)_{\vr{m}\times\vr{m}} - (\Sigma)_{\vr{m}\times\vr{m}}^{2}}^{1/2}}
                 - f_{\vr{0}}^{2}
@@ -302,11 +313,11 @@
             \end{equation}
             The proportion of response variance ascribable to the first $m$ basis directions of $\vr{u}$ is given by the Sobol' index
             \begin{equation} \label{eq:Method:GSA:SDef}
-                S_{\vr{m}} \deq D_{\vr{m}}/D_{\vr{M}} \leq S_{\vr{M}} = 1
+                S_{\vr{m}}((\Theta)_{\vr{m}\times\vr{M}}) \deq D_{\vr{m}}((\Theta)_{\vr{m}\times\vr{M}})/D_{\vr{M}}(\Theta) \leq S_{\vr{M}}(\Theta) = 1
             \end{equation}
-            Analytic expressions for $\partial_{\Theta} D_{\vr{m}}$ have been obtained from \cref{eq:Method:GSA:DmDef} using standard formulae for differentating matrix inverses and determinants. As $D_{\vr{m}}$ projects $M$-dimensional $\vr{x}$ onto $m$-dimensional $\vr{u}$, the result is affected by just a few components of rotation:
-            \begin{equation} \label{<label>}
-                \left(\partial_{\Theta} D_{\vr{m}}\right)_{i \times j} \neq 0 \quad \Longrightarrow \quad i \leq m < M
+            Analytic expressions for $\partial_{\Theta} D_{\vr{m}}((\Theta)_{\vr{m}\times\vr{M}})$ have been obtained from \cref{eq:Method:GSA:DmDef} using standard formulae for differentating matrix inverses and determinants. As $D_{\vr{m}}$ projects $M$-dimensional $\vr{x}$ onto $m$-dimensional $\vr{u}$, the result is affected by just a few components of rotation:
+            \begin{equation} \label{eq:Method:GSA:partialD}
+                \left(\partial_{\Theta} D_{\vr{m}}((\Theta)_{\vr{m}\times\vr{M}})\right)_{i \times j} \neq 0 \quad \Longrightarrow \quad i \leq m < M
             \end{equation}
 
         \subsection{Basis Optimization} \label{sub:Method:BO}
@@ -317,11 +328,11 @@
             relating sampling distribution $\vr{u} \sim \gauss{(\vr{0})_{\vr{M}}}{(\vr{I})_{\vr{M}\times\vr{M}}}$ to the input of the surrogate response $\bar{f}(\vr{x})$. This rotation will now be determined by maximizing the relevance -- as measured by Sobol' index -- of each $\vr{u}$-direction in turn. This means optimizing $\Theta$ in \cref{eq:Method:BO:Rotation} row by row from top to bottom. 
             
             Row orthonormality leaves just $(M-m-1)$ elements free in row $m$, which we encode as
-            \begin{equation} \label{eq:Method:BO:Rotation}
-                (\Theta)_{\vr{m}\times\vr{M}} = (\Xi)_{\vr{m}\times\vr{M}} (\hat{\Theta})_{\vr{M}\times\vr{M}}
+            \begin{equation} \label{eq:Method:BO:XiDef}
+                (\Theta)_{\vr{m}\times\vr{M}} \deqr (\Xi)_{\vr{m}\times\vr{M}} \hat{\Theta}
             \end{equation}
             where \(\Xi\) is orthogonal, and identical on the $(m-1)$ rows already optimized
-            \begin{equation} \label{eq:Method:BO:Rotation}
+            \begin{equation} \label{eq:Method:BO:XiConstraints}
                 \begin{aligned}
                     (\Xi)_{\vr{m}\setminus\set{m}\times\vr{M}} &= \vr{I}_{\vr{m}\setminus\set{m}\times\vr{M}} \\
                     (\Xi)_{m\times\vr{m}\setminus\set{m}} &= (\vr{0})_{1\times\vr{m}\setminus\set{m}} \\
@@ -329,7 +340,7 @@
                 \end{aligned}            
             \end{equation} \label{eq:Method:BO:Rotation}
             The last line induces a derivative adjustment
-            \begin{equation} \label{eq:Method:BO:Rotation}
+            \begin{equation} \label{eq:Method:BO:derivAdjust}
                 \frac{\partial}{\partial\,(\Xi)_{m\times k}} = \frac{\partial}{\partial\,(\Xi)_{m\times k}} - 
                 \frac{(\Xi)_{m \times k}}{(\Xi)_{m \times m}}\frac{\partial}{\partial\,(\Xi)_{m\times m}}
             \end{equation}
@@ -338,23 +349,35 @@
 
             Given these constraints, row $m$ is optimally determined by
             \begin{equation} \label{eq:Method:BO:Rotation}
-                (\Xi)_{m\times\vr{M}\setminus\vr{m}} = \argmax S_{\vr{m}} = \argmax D_{\vr{m}}
+                (\Xi)_{m\times\vr{M}\setminus\vr{m}} = \argmax_{(\Xi)_{m\times\vr{M}\setminus\vr{m}}} S_{\vr{m}}((\Theta)_{\vr{m}\times\vr{M}}) = \argmax_{(\Xi)_{m\times\vr{M}\setminus\vr{m}}} D_{\vr{m}}((\Theta)_{\vr{m}\times\vr{M}})
             \end{equation}
             The optimal row $m$ is then incorporated in $\hat{\Theta}$ and $\Xi$ according to
-            \begin{equation} \label{eq:Method:BO:Rotation}
-                \begin{aligned}
-                    \hat{\Theta} &= \vr{Q}^{\intercal} \quad \text{where} \Theta^{\intercal} = \vr{Q}\vr{R} \text{ is the QR factorization of the update} \\
-                    (\Xi)_{\vr{m}\times\vr{M}} &= \vr{I}_{\vr{m}\times\vr{M}}
-                \end{aligned}
+            \begin{equation} \label{eq:Method:BO:incorpUpadate}
+                \begin{gathered}
+                    \hat{\Theta} = \vr{Q}^{\intercal} \  \text{where } \Theta^{\intercal} = \vr{Q}\vr{R} \text{ is the QR factorization of the update} \\
+                    (\Xi)_{\vr{m}\times\vr{M}} = \vr{I}_{\vr{m}\times\vr{M}}
+                \end{gathered}
             \end{equation}        
             ready to optimize row $m+1$. 
             Optimization followed by incorporation is performed for $m=1,\ldots, M-1$ in turn to entirely optimize $\Theta$.
             The later rows could be left unoptimized, though they are successively cheaper to obtain.
     
-        \subsection{Summary} \label{sub:Method:BO}
-            The main loop 
+        \subsection{Summary} \label{sub:Method:Summary}
+            The main loop of the optimizations reported in the next Section is:
+            \begin{enumerate}
+                \item Fit a GP surrogate (with an ARD kernel) to $y(\vr{X})$, determining $\bar{f}(\vr{x})$ according to \cref{sub:Method:GP}.
+                \item Perform basis optimization on the Sobol' indices of $\bar{f}(\vr{x})$, determining $\Theta$ according to \crefrange{sub:Method:GSA}{sub:Method:BO}.
+                \item Rotate the input basis of the training set $\vr{X}$ by $\Theta$, effectively setting $\vr{x}=\vr{u}$.
+                \item Return to Step 1, unless $\Theta \approx \vr{I}$.
+            \end{enumerate}
+            This algorithm lacks only the hyperparameters used to initialize Steps 1 and 2, and these will be specified case-by-case in the next Section.
 
-        \section{} \label{}
+
+    \section{Results} \label{sec:Results}
+
+
+    \section{Discussion} \label{sec:Discussion}
+
 
         %% The Appendices part is started with the command \appendix;
         %% appendix sections are then done as normal sections
@@ -370,7 +393,8 @@
         %% else use the following coding to input the bibitems directly in the
         %% TeX file.
 
-    \bibliographystyle{elsarticle-num} 
+
+        \bibliographystyle{elsarticle-num} 
     \bibliography{main}
 
 \end{document}

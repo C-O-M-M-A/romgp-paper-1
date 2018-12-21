@@ -64,8 +64,8 @@
     \newcommand*{\deqr}{\M{=\mathrel{\mathop:}}} 
     \newcommand{\T}[1]{\text{#1}} 
     \newcommand*{\QT}[2][]{\M{\quad\T{#2}\ifthenelse{\equal{#1}{}}{\quad}{#1}}} 
-    \newcommand*{\ev}[1]{\mathsf{E}\!\left\lbrack{} #1 \right\rbrack}
-    \newcommand*{\var}[1]{\mathsf{Var}\!\left\lbrack{} #1 \right\rbrack}
+    \newcommand*{\ev}[2][]{\mathsf{E}_{#1}\!\left\lbrack{} #2 \right\rbrack}
+    \newcommand*{\var}[2][]{\mathsf{Var}_{#1}\!\left\lbrack{} #2 \right\rbrack}
     \newcommand*{\gauss}[2]{\mathsf{N}\!\left\lbrack{} #1 , #2 \right\rbrack}
     \newcommand*{\modulus}[1]{\M{\left\lvert#1\right\rvert}} 
     \newcommand*{\set}[1]{\M{\left\lbrace#1\right\rbrace}} 
@@ -173,13 +173,13 @@
         \subsection{Global Sensitivity Analysis}
             This paper proposes to achieve kernel optimization indirectly, via global sensitivity analysis (GSA).
             The surrogate expectation
-            \begin{equation}
-                \ev{y(\vr{x})} = \ev{f(\vr{x})} \deqr \bar{f}(\vr{x})
-            \end{equation}
+            \begin{equation*}
+                \ev[\Omega]{y(\vr{x})} = \ev[\Omega]{f(\vr{x})} \deqr \bar{f}(\vr{x})
+            \end{equation*}
             has a variation (over $\vr{x} \in \st{R}^{M}$) which can be apportioned by Sobol' index
-            \begin{equation}
-                S_{\vr{m}}((\Theta)_{\vr{m}\times\vr{M}}) \deq \var{\bar{f}(\vr{x}) \vert (\Theta \vr{x})_{\vr{m}}} / \var{\bar{f}(\vr{x})} \leq 1
-            \end{equation}
+            \begin{equation*}
+                S_{\vr{m}}((\Theta)_{\vr{m}\times\vr{M}}) \deq \var[\vr{x}]{\ev[\vr{x}]{\bar{f}(\vr{x}) \vert (\Theta \vr{x})_{\vr{m}}}} / \var[\vr{x}]{\bar{f}(\vr{x})} \leq 1
+            \end{equation*}
             to subspaces $(\Theta \vr{x})_{\vr{m}}$ of dimension $m\leq M$. These may be calculated analytically for the exponential quadratic kernel used here. To cure to the curse of dimensionality is to find $(\Theta)_{\vr{m}\times\vr{M}}$ such that $S_{\vr{m}} \approx 1$ for $m\ll M$. The rotation sub-matrix $(\Theta)_{\vr{m}\times\vr{M}}$ has a manageable number of elements if $m$ is small. This paper takes the most economical approach,maximizing $S_{\vr{m}}$ for $m=1,\ldots,M$ in turn, to find the most relevant direction, then the second most relevant, and so on. Other approaches are considered in \cref{sec:Discussion}.
 
 
@@ -194,7 +194,7 @@
         \end{align*}
         where boldface subscripts refer to the multi-indices
         \begin{equation} \label{eq:Method:MultiIndexDef}
-            \emptyset\subseteq\vr{m}\deq(1,\ldots,m) \subseteq \vr{M}
+            \emptyset \deqr \vr{0} \subseteq\vr{m}\deq(1,\ldots,m) \subseteq \vr{M}
         \end{equation}
         which always precede superscript operations (such as transposition or inversion). For brevity, we shall admit vector Gaussian probability densities $p\!\left((\vr{z})_{\vr{m}} ; (\vr{Z})_{\vr{m}\times\vr{J}}, \Sigma_{\vr{z}}\right)$ such that
         \begin{multline} \label{eq:Method:pDef}
@@ -263,7 +263,7 @@
 					{p\!\left((\vr{u})_{\vr{m}} ; (\vr{T})_{\vr{N}\times\vr{m}}^{\intercal}, (\Sigma)_{\vr{m}\times\vr{m}}\right)}
 					{p\!\left((\vr{u})_{\vr{m}} ; (\vr{0})_{\vr{m}},(\vr{I})_{\vr{m}\times\vr{m}}\right)}
             \end{equation}
-            where $\vr{g}$ is the Hadamard $\circ$ (element-wise) product of two vectors
+            where $\vr{g}$ is the Hadamard (element-wise) product $\circ$ of two vectors
             \begin{equation} \label{eq:Method:GSA:gDef}
                 \vr{g} \deq
                 (2 \pi)^{M/2} \modulus{\Lambda} p\!\left(\vr{0};\vr{X}^{\intercal} , \Lambda^{2} + \vr{I}\right)
@@ -348,7 +348,7 @@
             This work uses a BFGS optimizer, fed an analytic Jacobian.
 
             Given these constraints, row $m$ is optimally determined by
-            \begin{equation} \label{eq:Method:BO:Rotation}
+            \begin{equation} \label{eq:Method:BO:OptimalRow}
                 (\Xi)_{m\times\vr{M}\setminus\vr{m}} = \argmax_{(\Xi)_{m\times\vr{M}\setminus\vr{m}}} S_{\vr{m}}((\Theta)_{\vr{m}\times\vr{M}}) = \argmax_{(\Xi)_{m\times\vr{M}\setminus\vr{m}}} D_{\vr{m}}((\Theta)_{\vr{m}\times\vr{M}})
             \end{equation}
             The optimal row $m$ is then incorporated in $\hat{\Theta}$ and $\Xi$ according to

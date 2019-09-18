@@ -55,8 +55,10 @@
     %% \usepackage{lineno}
 
 %%%%%%%%%% Robert's macros %%%%%%%%%%%%
-    \RequirePackage{xspace} 
-    \RequirePackage{ifthen} 
+    \usepackage{algorithm}
+    \usepackage{algorithmic}
+    \usepackage{xspace} 
+    \usepackage{ifthen} 
     \newcommand*{\M}[1]{\ensuremath{#1}\xspace} 
     \newcommand*{\vr}[1]{\M{\mathbf{#1}}} 
     \newcommand*{\st}[1]{\M{\mathbb{#1}}} 
@@ -168,7 +170,7 @@
             Modes of response oscillating rapidly with $\vr{x}$ are intepreted as noise by the GP, as the kernel smoothes $y$ into $f$. Such regularization is often, but not always, desirable, to avoid wildly unreliable interpolation of an overfit regression. We shall expand on this point later.
 
         \subsection{Kernel Optimization}
-            The cure to the curse of dimensionality is to find orthogonal rotation matrix $\Theta$ and diagonal lengthscale matrix $\Lambda$ which best fit observed responses $y(\vr{X})$. The largest lengthscales in $\Lambda$ mark the least relevant directions, to be pruned. However, the best fit must optimize $M(M+1)/2+2$ hyperparameters simultaneously to determine $\Theta, \Lambda, \sigma^{2}_\vr{f}$ and $\sigma^{2}_\vr{e}$. An exploitative, directed optimization of such numerosity is almost bound to get bogged down in local optima. Exploratory grid search is astronomically expensive $O(\exp(M(M+1)/2)$, likewise any random sampling which is not hopelessly sparse. Perhaps for these reasons, $\Theta$ has always been fixed as identity in the literature. The lengthscales $\Lambda$ are also usually identical (multiplied by constant), furnishing a radial basis function (RBF) kernel. The few studies where $\Lambda$ is not identical speak of an automatic relevance determination (ARD) kernel. Obviously this was named with model order reduction in mind. However, admitting no rotation $\Theta$ severely restricts the reductions available. If relevant inputs are mutually dependent, they must all be retained. Rotation, on the contrary, combines them into a low dimensional subspace.
+            The cure to the curse of dimensionality is to find orthogonal rotation matrix $\Theta$ and diagonal lengthscale matrix $\Lambda$ which best fit observed responses $y(\vr{X})$. The largest lengthscales in $\Lambda$ mark the least relevant directions, to be pruned. However, the best fit must optimize $M(M+1)/2+2$ hyperparameters simultaneously to determine $\Theta, \Lambda, \sigma^{2}_\vr{f}$ and $\sigma^{2}_\vr{e}$. An exploitative, directed optimization of such numerosity is almost bound to get bogged down in local optima. Exploratory grid search is astronomically expensive $O(\exp(M(M+1)/2)$, likewise any random sampling which is not hopelessly sparse. Perhaps for these reasons, $\Theta$ has always been fixed as identity in the literature. The lengthscales comprising $\Lambda$ are also usually identical, furnishing a radial basis function (RBF) kernel. The few studies where $\Lambda$ is not identical speak of an automatic relevance determination (ARD) kernel, with model order reduction in mind. However, admitting no rotation $\Theta$ severely restricts the reductions available. If relevant inputs are mutually dependent, they must all be retained. Rotation, on the contrary, combines them into a low dimensional subspace.
 
         \subsection{Global Sensitivity Analysis}
             This paper proposes to achieve kernel optimization indirectly, via global sensitivity analysis (GSA).
@@ -258,14 +260,14 @@
             Knowledge of $\vr{u}$ herein ranges from totally conditional $f_{\vr{M}}(\vr{u})=\bar{f}(\vr{x})$ to unconditional ignorance $f_{\vr{0}}=\ev{\bar{f}(\vr{x})}$.
             \Crefrange{eq:Method:GP:Kernel}{eq:Method:GSA:uDist} enable analytic integration yielding
             \begin{equation} \label{eq:Method:GSA:fmCalc}
-                f_{\vr{m}}((\vr{u})_{\vr{m}}) = \vr{g}^{\intercal} \; 
+                f_{\vr{m}}((\vr{u})_{\vr{m}}) = \tilde{\vr{f}}^{\intercal} \; 
 				\frac 
 					{p\!\left((\vr{u})_{\vr{m}} ; (\vr{T})_{\vr{N}\times\vr{m}}^{\intercal}, (\Sigma)_{\vr{m}\times\vr{m}}\right)}
 					{p\!\left((\vr{u})_{\vr{m}} ; (\vr{0})_{\vr{m}},(\vr{I})_{\vr{m}\times\vr{m}}\right)}
             \end{equation}
-            where $\vr{g}$ is the Hadamard (element-wise) product $\circ$ of two vectors
+            where $\tilde{\vr{f}}$ is the Hadamard (element-wise) product $\circ$ of two vectors
             \begin{equation} \label{eq:Method:GSA:gDef}
-                \vr{g} \deq
+                \tilde{\vr{f}} \deq
                 (2 \pi)^{M/2} \modulus{\Lambda} p\!\left(\vr{0};\vr{X}^{\intercal} , \Lambda^{2} + \vr{I}\right)
                 \circ\left(\sigma^{2}_\vr{f} \vr{K}^{-1} y(\vr{X})\right) 
             \end{equation}
@@ -278,14 +280,14 @@
             \end{align}
             According to these formulae, the unconditional surrogate response is
             \begin{equation} \label{eq:Method:GSA:f_0}
-                f_{\vr{0}} = \ev{\bar{f}(\vr{x})} = \vr{g}^{\intercal} (\vr{1})_{\vr{N}}
+                f_{\vr{0}} = \ev{\bar{f}(\vr{x})} = \tilde{\vr{f}}^{\intercal} (\vr{1})_{\vr{N}}
             \end{equation}
             which does not depend on $\Theta$ of course. Standardization of $y(\vr{X})$ instills an expectation of precisely zero here if $\vr{x}_{n} \sim \gauss{(\vr{0})_{\vr{M}}}{(\vr{I})_{\vr{M}\times\vr{M}}}$ (which is often not exactly true).
 
             Conditional variances may now be calculated as
             \begin{equation} \label{eq:Method:GSA:DmDef}
                 D_{\vr{m}}((\Theta)_{\vr{m}\times\vr{M}}) \deq \var{f_{\vr{m}}((\vr{u})_{\vr{m}})}
-                = \frac {\vr{g}^{\intercal} \; \vr{W}_{\vr{m}} \; \vr{g}}
+                = \frac {\tilde{\vr{f}}^{\intercal} \; \vr{W}_{\vr{m}} \; \tilde{\vr{f}}}
                     {\modulus{2(\Sigma)_{\vr{m}\times\vr{m}} - (\Sigma)_{\vr{m}\times\vr{m}}^{2}}^{1/2}}
                 - f_{\vr{0}}^{2}
             \end{equation}
@@ -315,10 +317,11 @@
             \begin{equation} \label{eq:Method:GSA:SDef}
                 S_{\vr{m}}((\Theta)_{\vr{m}\times\vr{M}}) \deq D_{\vr{m}}((\Theta)_{\vr{m}\times\vr{M}})/D_{\vr{M}}(\Theta) \leq S_{\vr{M}}(\Theta) = 1
             \end{equation}
-            Analytic expressions for $\partial_{\Theta} D_{\vr{m}}((\Theta)_{\vr{m}\times\vr{M}})$ have been obtained from \cref{eq:Method:GSA:DmDef} using standard formulae for differentating matrix inverses and determinants. As $D_{\vr{m}}$ projects $M$-dimensional $\vr{x}$ onto $m$-dimensional $\vr{u}$, the result is affected by just a few components of rotation:
+            Analytic expressions for $\partial_{\Theta} D_{\vr{m}}((\Theta)_{\vr{m}\times\vr{M}})$ have been obtained from \cref{eq:Method:GSA:DmDef} using standard formulae for differentating matrix inverses and determinants. As $D_{\vr{m}}$ projects $M$-dimensional $(\vr{x})_{\vr{M}}$ onto $m$-dimensional $(\vr{u})_{\vr{M}}$, the result is affected by just a few components of rotation:
             \begin{equation} \label{eq:Method:GSA:partialD}
                 \left(\partial_{\Theta} D_{\vr{m}}((\Theta)_{\vr{m}\times\vr{M}})\right)_{i \times j} \neq 0 \quad \Longrightarrow \quad i \leq m < M
             \end{equation}
+            In particular $D_{\vr{M}}(\Theta)=D_{\vr{M}}$ and $S_{\vr{M}}(\Theta)=1$ are independent of $\Theta$, as there is no projection, only rotation, in transforming $(\vr{x})_{\vr{M}}$ into $(\vr{u})_{\vr{M}}$.
 
         \subsection{Basis Optimization} \label{sub:Method:BO}
             At this point in the analysis, everything has been fixed save the rotation
@@ -338,13 +341,13 @@
                     (\Xi)_{m\times\vr{m}\setminus\set{m}} &= (\vr{0})_{1\times\vr{m}\setminus\set{m}} \\
                     (\Xi)_{m\times m} &= \left(1 - \sum_{k=m+1}^{M} (\Xi)_{m\times k}^{2} \right)^{1/2}
                 \end{aligned}            
-            \end{equation} \label{eq:Method:BO:Rotation}
+            \end{equation}
             The last line induces a derivative adjustment
             \begin{equation} \label{eq:Method:BO:derivAdjust}
                 \frac{\partial}{\partial\,(\Xi)_{m\times k}} = \frac{\partial}{\partial\,(\Xi)_{m\times k}} - 
                 \frac{(\Xi)_{m \times k}}{(\Xi)_{m \times m}}\frac{\partial}{\partial\,(\Xi)_{m\times m}}
             \end{equation}
-            which should exploited by the optimizer as a powerful repellant to orthonormality violations.
+            which should be exploited by the optimizer as a powerful repellant to orthonormality violations.
             This work uses a BFGS optimizer, fed an analytic Jacobian.
 
             Given these constraints, row $m$ is optimally determined by
@@ -364,16 +367,37 @@
     
         \subsection{Summary} \label{sub:Method:Summary}
             The main loop of the optimizations reported in the next Section is:
-            \begin{enumerate}
-                \item Fit a GP surrogate (with an ARD kernel) to $y(\vr{X})$, determining $\bar{f}(\vr{x})$ according to \cref{sub:Method:GP}.
-                \item Perform basis optimization on the Sobol' indices of $\bar{f}(\vr{x})$, determining $\Theta$ according to \crefrange{sub:Method:GSA}{sub:Method:BO}.
-                \item Rotate the input basis of the training set $\vr{X}$ by $\Theta$, effectively setting $\vr{x}=\vr{u}$.
-                \item Return to Step 1, unless $\Theta \approx \vr{I}$.
-            \end{enumerate}
-            This algorithm lacks only the hyperparameters used to initialize Steps 1 and 2, and these will be specified case-by-case in the next Section.
+            \begin{algorithm}
+                \begin{algorithmic}[1]
+                    \REPEAT
+                        \STATE Fit GP surrogate to $y(\vr{X})$, determining $\bar{f}(\vr{x})$ according to \cref{sub:Method:GP}
+                        \STATE Set $\hat{\Theta} \leftarrow \Theta \leftarrow \vr{I}$
+                        \FOR{$m=1$ \TO $M$}
+                            \STATE According to \cref{sub:Method:GSA}, optimize
+                            $$(\Xi)_{m\times\vr{M}\setminus\vr{m}} \leftarrow \argmax_{(\Xi)_{m\times\vr{M}\setminus\vr{m}}} D_{\vr{m}}((\Theta)_{\vr{m}\times\vr{M}})$$
+                            where $(\Theta)_{\vr{m}\times\vr{M}} \deqr (\Xi)_{\vr{m}\times\vr{M}} \hat{\Theta}$
+                            \STATE  Reset $\hat{\Theta} \leftarrow \vr{Q}^{\intercal}$ where $\Theta^{\intercal} = \vr{Q}\vr{R}$
+                        \ENDFOR
+                    \STATE Reset the input basis to $\vr{X} = \vr{X} \Theta^{\intercal}$
+                    \UNTIL{$\Theta \approx \vr{I}$}
+                \end{algorithmic}
+            \end{algorithm}
 
 
     \section{Results} \label{sec:Results}
+        \subsection{Ishigami Function} \label{sub:Results:Ishigami}
+            \begin{equation} \label{def:Ishigami}
+                f(\vr{x}) \deq \left(1 + b \vr{x}_3^4\right) \sin(\vr{x}_1) + a \sin^{2}(\vr{x}_2)
+            \end{equation}
+            \begin{gather*}
+                a = 7.0 \QT{;} b = 0.1 \\
+                S_{\vr{1}} \deq S_{(1)} = 0.313905 \QT{;}S_{(2)} = 0.442411 \QT{;} S_{(3)} = 0 \\
+                S_{\vr{2}} \deq S_{(1,2)} = 0.756316 \QT{;} S_{\vr{3}} \deq S_{(1,2,3)} = 1
+            \end{gather*}
+        \subsection{Sobol' G Function} \label{sub:Results:SobolG}
+            \begin{equation} \label{def:SobolG}
+                f(\vr{x}) \deq \prod_{i=1}^{D}{\frac{\modulus{4\vr{x}_i - 2} + \vr{a}_{i}}{1+\vr{a}_{i}}}
+            \end{equation}
 
 
     \section{Discussion} \label{sec:Discussion}

@@ -42,10 +42,6 @@
     %% elsarticle.cls. If you prefer to use the old commands
     %% please give \usepackage{epsfig}
 
-    %% The amssymb package provides various useful mathematical symbols
-    \usepackage{amssymb}
-    \usepackage{amsmath}
-    \usepackage[capitalize]{cleveref}
     %% The amsthm package provides extended theorem environments
     %% \usepackage{amsthm}
 
@@ -57,6 +53,12 @@
 %%%%%%%%%% Robert's macros %%%%%%%%%%%%
     \usepackage{algorithm}
     \usepackage{algorithmic}
+
+    %% The amssymb package provides various useful mathematical symbols
+    \usepackage{amssymb}
+    \usepackage{amsmath}
+    \usepackage[capitalize]{cleveref}
+
     \usepackage{xspace} 
     \usepackage{ifthen} 
     \newcommand*{\M}[1]{\ensuremath{#1}\xspace} 
@@ -303,14 +305,14 @@
                         }{2}\right) \\
                         &\times\exp\!\left(\frac{
                             + \left((\vr{T})_{n\times\vr{m}}+(\vr{T})_{o\times\vr{m}}\right)
-                            (\Phi)_{\vr{m}\times\vr{m}}^{-1}(\Sigma)_{\vr{m}\times\vr{m}}^{-1}
+                            (\Psi)_{\vr{m}\times\vr{m}}^{-1}(\Sigma)_{\vr{m}\times\vr{m}}^{-1}
                             \left((\vr{T})_{n\times\vr{m}}^{\intercal}+(\vr{T})_{o\times\vr{m}}^{\intercal}\right)
                             }{2}\right)
                 \end{aligned}
             \end{equation}
             and
             \begin{equation} \label{eq:Method:GSA:PhiDef}
-                \Phi \deq \Theta \left(\Lambda^{-2}+\vr{I}\right)^{-1}\left(2\Lambda^{-2}+\vr{I}\right) 
+                \Psi \deq \Theta \left(\Lambda^{-2}+\vr{I}\right)^{-1}\left(2\Lambda^{-2}+\vr{I}\right) 
                 \Theta^{\intercal}
             \end{equation}
             The proportion of response variance ascribable to the first $m$ basis directions of $\vr{u}$ is given by the Sobol' index
@@ -332,7 +334,7 @@
             
             Row orthonormality leaves just $(M-m-1)$ elements free in row $m$, which we encode as
             \begin{equation} \label{eq:Method:BO:XiDef}
-                (\Theta)_{\vr{m}\times\vr{M}} \deqr (\Xi)_{\vr{m}\times\vr{M}} \hat{\Theta}
+                (\Theta)_{\vr{m}\times\vr{M}} \deqr (\Xi)_{\vr{m}\times\vr{M}} \tilde{\Theta}
             \end{equation}
             where \(\Xi\) is orthogonal, and identical on the $(m-1)$ rows already optimized
             \begin{equation} \label{eq:Method:BO:XiConstraints}
@@ -354,10 +356,10 @@
             \begin{equation} \label{eq:Method:BO:OptimalRow}
                 (\Xi)_{m\times\vr{M}\setminus\vr{m}} = \argmax_{(\Xi)_{m\times\vr{M}\setminus\vr{m}}} S_{\vr{m}}((\Theta)_{\vr{m}\times\vr{M}}) = \argmax_{(\Xi)_{m\times\vr{M}\setminus\vr{m}}} D_{\vr{m}}((\Theta)_{\vr{m}\times\vr{M}})
             \end{equation}
-            The optimal row $m$ is then incorporated in $\hat{\Theta}$ and $\Xi$ according to
+            The optimal row $m$ is then incorporated in $\tilde{\Theta}$ and $\Xi$ according to
             \begin{equation} \label{eq:Method:BO:incorpUpadate}
                 \begin{gathered}
-                    \hat{\Theta} = \vr{Q}^{\intercal} \  \text{where } \Theta^{\intercal} = \vr{Q}\vr{R} \text{ is the QR factorization of the update} \\
+                    \tilde{\Theta} = \vr{Q}^{\intercal} \  \text{where } \Theta^{\intercal} = \vr{Q}\vr{R} \text{ is the QR factorization of the update} \\
                     (\Xi)_{\vr{m}\times\vr{M}} = \vr{I}_{\vr{m}\times\vr{M}}
                 \end{gathered}
             \end{equation}        
@@ -371,20 +373,36 @@
                 \begin{algorithmic}[1]
                     \REPEAT
                         \STATE Fit GP surrogate to $y(\vr{X})$, determining $\bar{f}(\vr{x})$ according to \cref{sub:Method:GP}
-                        \STATE Set $\hat{\Theta} \leftarrow \Theta \leftarrow \vr{I}$
+                        \STATE Set $\tilde{\Theta} \leftarrow \Theta \leftarrow \vr{I}$
                         \FOR{$m=1$ \TO $M$}
-                            \STATE According to \cref{sub:Method:GSA}, optimize
+                            \STATE According to \cref{sub:Method:GSA}, optimize \label{bum}
                             $$(\Xi)_{m\times\vr{M}\setminus\vr{m}} \leftarrow \argmax_{(\Xi)_{m\times\vr{M}\setminus\vr{m}}} D_{\vr{m}}((\Theta)_{\vr{m}\times\vr{M}})$$
-                            where $(\Theta)_{\vr{m}\times\vr{M}} \deqr (\Xi)_{\vr{m}\times\vr{M}} \hat{\Theta}$
-                            \STATE  Reset $\hat{\Theta} \leftarrow \vr{Q}^{\intercal}$ where $\Theta^{\intercal} = \vr{Q}\vr{R}$
+                            where $(\Theta)_{\vr{m}\times\vr{M}} \deqr (\Xi)_{\vr{m}\times\vr{M}} \tilde{\Theta}$
+                            \STATE  Reset $\tilde{\Theta} \leftarrow \vr{Q}^{\intercal}$ where $\Theta^{\intercal} = \vr{Q}\vr{R}$
                         \ENDFOR
                     \STATE Reset the input basis to $\vr{X} = \vr{X} \Theta^{\intercal}$
                     \UNTIL{$\Theta \approx \vr{I}$}
                 \end{algorithmic}
             \end{algorithm}
 
+            The optimization in Step \ref{bum} is prone to fall into local optima, especially in the first iteration or two of the outermost loop. 
+            It is recommended that these early iterations explore the behaviour of \M{(\Xi)_{m\times\vr{M}\setminus\vr{m}}} (by grid or randomized search) before attempting to exploit it (by gradient descent).
 
     \section{Results} \label{sec:Results}
+        The algorithm described in \cref{sub:Method:Summary} has been tested on a suite of test functions.
+        In each case an \M{N \times M} design matrix \vr{X} is sampled from a standard normal distribution. 
+        The input to the test function \M{f: \lbrack x_-, x_+ \rbrack^{M} \rightarrow \st{R}} is generally constructed as
+        \begin{equation} \label{def:Xhat}
+            \vr{\hat{X}}^{\intercal} = (x_+ - x_-) c(\Phi X^{\intercal}) + x_-(\vr{I})_{\vr{M} \times \vr{N}}
+        \end{equation}
+        where \M{c} is the cumulative density function for independent standard normal random variables, and \M{\Phi} is a test rotation matrix which is either identity or random.
+        \subsection{Sine Function} \label{sub:Results:Sin}
+            \begin{equation} \label{def:Sin}
+                f(\vr{\hat{x}}) \deq \sin(\vr{\hat{x}}_1)
+            \end{equation}
+            \begin{gather*}
+                S_{\vr{1}} \deq S_{(1)} = 1
+            \end{gather*}
         \subsection{Ishigami Function} \label{sub:Results:Ishigami}
             \begin{equation} \label{def:Ishigami}
                 f(\vr{x}) \deq \left(1 + b \vr{x}_3^4\right) \sin(\vr{x}_1) + a \sin^{2}(\vr{x}_2)

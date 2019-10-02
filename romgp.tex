@@ -61,6 +61,8 @@
 
     \usepackage{xspace} 
     \usepackage{ifthen} 
+    \usepackage{csvsimple}
+
     \newcommand*{\M}[1]{\ensuremath{#1}\xspace} 
     \newcommand*{\vr}[1]{\M{\mathbf{#1}}} 
     \newcommand*{\st}[1]{\M{\mathbb{#1}}} 
@@ -72,6 +74,7 @@
     \newcommand*{\var}[2][]{\mathsf{Var}_{#1}\!\left\lbrack{} #2 \right\rbrack}
     \newcommand*{\gauss}[2]{\mathsf{N}\!\left\lbrack{} #1 , #2 \right\rbrack}
     \newcommand*{\modulus}[1]{\M{\left\lvert#1\right\rvert}} 
+    \newcommand*{\norm}[1]{\M{\left\lVert#1\right\rVert}} 
     \newcommand*{\set}[1]{\M{\left\lbrace#1\right\rbrace}} 
     \DeclareMathOperator*{\argmax}{argmax}
 
@@ -172,7 +175,7 @@
             Modes of response oscillating rapidly with $\vr{x}$ are intepreted as noise by the GP, as the kernel smoothes $y$ into $f$. Such regularization is often, but not always, desirable, to avoid wildly unreliable interpolation of an overfit regression. We shall expand on this point later.
 
         \subsection{Kernel Optimization}
-            The cure to the curse of dimensionality is to find orthogonal rotation matrix $\Theta$ and diagonal lengthscale matrix $\Lambda$ which best fit observed responses $y(\vr{X})$. The largest lengthscales in $\Lambda$ mark the least relevant directions, to be pruned. However, the best fit must optimize $M(M+1)/2+2$ hyperparameters simultaneously to determine $\Theta, \Lambda, \sigma^{2}_\vr{f}$ and $\sigma^{2}_\vr{e}$. An exploitative, directed optimization of such numerosity is almost bound to get bogged down in local optima. Exploratory grid search is astronomically expensive $O(\exp(M(M+1)/2)$, likewise any random sampling which is not hopelessly sparse. Perhaps for these reasons, $\Theta$ has always been fixed as identity in the literature. The lengthscales comprising $\Lambda$ are also usually identical, furnishing a radial basis function (RBF) kernel. The few studies where $\Lambda$ is not identical speak of an automatic relevance determination (ARD) kernel, with model order reduction in mind. However, admitting no rotation $\Theta$ severely restricts the reductions available. If relevant inputs are mutually dependent, they must all be retained. Rotation, on the contrary, combines them into a low dimensional subspace.
+            The cure to the curse of dimensionality is to find orthogonal rotation matrix $\Theta$ and diagonal lengthscale matrix $\Lambda$ which best fit observed responses $y(\vr{X}^{\intercal})$. The largest lengthscales in $\Lambda$ mark the least relevant directions, to be pruned. However, the best fit must optimize $M(M+1)/2+2$ hyperparameters simultaneously to determine $\Theta, \Lambda, \sigma^{2}_\vr{f}$ and $\sigma^{2}_\vr{e}$. An exploitative, directed optimization of such numerosity is almost bound to get bogged down in local optima. Exploratory grid search is astronomically expensive $O(\exp(M(M+1)/2)$, likewise any random sampling which is not hopelessly sparse. Perhaps for these reasons, $\Theta$ has always been fixed as identity in the literature. The lengthscales comprising $\Lambda$ are also usually identical, furnishing a radial basis function (RBF) kernel. The few studies where $\Lambda$ is not identical speak of an automatic relevance determination (ARD) kernel, with model order reduction in mind. However, admitting no rotation $\Theta$ severely restricts the reductions available. If relevant inputs are mutually dependent, they must all be retained. Rotation, on the contrary, combines them into a low dimensional subspace.
 
         \subsection{Global Sensitivity Analysis}
             This paper proposes to achieve kernel optimization indirectly, via global sensitivity analysis (GSA).
@@ -188,13 +191,13 @@
 
 
     \section{Methodology} \label{sec:Method}
-        Let $\vr{X}$ be the $(N \times M)$ design matrix of observed inputs eliciting the $N \times 1$ response $y(\vr{X})$. The observations are standardized such that
+        Let $\vr{X}$ be the $(N \times M)$ design matrix of observed inputs eliciting the \M{N} response $y(\vr{X}^{\intercal})$. The observations are standardized such that
         \begin{align*}
             (\vr{0})_\vr{M} = \ev{\vr{x}_{n}} \deq \sum_{n=1}^{N} (\vr{X})_{n \times \vr{M}}^{\intercal} 
             &\QT{;} 1 = \var{\vr{x}_{n}} = N^{-1}\sum_{n=1}^{N} (\vr{X})_{n \times \vr{M}} (\vr{X})_{n \times \vr{M}}^{\intercal}
             \\
-            0 = \ev{y(\vr{x}_{n})} \deq \sum_{n=1}^{N} (y(\vr{X}))_{n} 
-            &\QT{;} 1 = \var{y(\vr{x}_{n})} = N^{-1} y(\vr{X})^{\intercal}y(\vr{X})
+            0 = \ev{y(\vr{x}_{n})} \deq \sum_{n=1}^{N} (y(\vr{X}^{\intercal}))_{n} 
+            &\QT{;} 1 = \var{y(\vr{x}_{n})} = N^{-1} y(\vr{X}^{\intercal})^{\intercal}y(\vr{X}^{\intercal})
         \end{align*}
         where boldface subscripts refer to the multi-indices
         \begin{equation} \label{eq:Method:MultiIndexDef}
@@ -212,12 +215,12 @@
         \subsection{Gaussian Process Surrogate} \label{sub:Method:GP}
             Non-parametric GP regression fits signal $f$ and noise $e$ Gaussian processes to
             \begin{equation} \label{eq:Method:GP:Problem}
-                y(\vr{X}) = f(\vr{X}) + e(\vr{X})
+                y(\vr{X}^{\intercal}) = f(\vr{X}^{\intercal}) + e(\vr{X}^{\intercal})
             \end{equation}
             This work exclusively employs objective Bayesian priors
             \begin{align*}
-                f(\vr{X}) &\sim \gauss{(\vr{0})_{\vr{N}}}{\sigma_{\vr{f}}^{2} k(\vr{X},\vr{X})} \\
-                e(\vr{X}) &\sim \gauss{(\vr{0})_{\vr{N}}}{\sigma_{\vr{e}}^{2} (\vr{I})_{\vr{N}\times\vr{N}}} 
+                f(\vr{X}^{\intercal}) &\sim \gauss{(\vr{0})_{\vr{N}}}{\sigma_{\vr{f}}^{2} k(\vr{X}^{\intercal},\vr{X}^{\intercal})} \\
+                e(\vr{X}^{\intercal}) &\sim \gauss{(\vr{0})_{\vr{N}}}{\sigma_{\vr{e}}^{2} (\vr{I})_{\vr{N}\times\vr{N}}} 
             \end{align*}
             built on an ARD kernel \cite{Wipf.Nagarajan2007, Neal1996}
             \begin{equation} \label{eq:Method:GP:Kernel}
@@ -232,18 +235,18 @@
             with signal mean and variance
             \begin{equation} \label{eq:Method:GP:MeanAndVariance}
                 \begin{aligned}
-                    \bar{f}(\vr{x}) &\deq \sigma^{2}_\vr{f} k(\vr{x},\vr{X})
-                    \vr{K}^{-1} y(\vr{X}) \\
+                    \bar{f}(\vr{x}) &\deq \sigma^{2}_\vr{f} k(\vr{x},\vr{X}^{\intercal})
+                    \vr{K}^{-1} y(\vr{X}^{\intercal}) \\
                     \Sigma_{\vr{f}}(\vr{x}) &\deq \sigma^{2}_\vr{f} k(\vr{x},\vr{x})
-                    - \sigma^{2}_\vr{f} k(\vr{x},\vr{X})
-                    \vr{K}^{-1} \sigma^{2}_\vr{f} k(\vr{X},\vr{x})
+                    - \sigma^{2}_\vr{f} k(\vr{x},\vr{X}^{\intercal})
+                    \vr{K}^{-1} \sigma^{2}_\vr{f} k(\vr{X}^{\intercal},\vr{x})
                 \end{aligned}
             \end{equation}
         where
             \begin{equation} \label{eq:Method:GP:KDef}
-                \vr{K} \deq \sigma^{2}_\vr{f} k(\vr{X},\vr{X}) + \sigma_{\vr{e}}^{2} (\vr{I})_{\vr{N}\times\vr{N}}       
+                \vr{K} \deq \sigma^{2}_\vr{f} k(\vr{X}^{\intercal},\vr{X}^{\intercal}) + \sigma_{\vr{e}}^{2} (\vr{I})_{\vr{N}\times\vr{N}}       
             \end{equation}
-        The $M+2$ hyperparameters constituting $\Lambda, \sigma_{\vr{f}}$ and $\sigma_{\vr{e}}$ are simultaneously optimized for maximium marginal likelihood $\mathsf{p}\lbrack y \vert \vr{X}\rbrack$, using the GPy software library.
+        The $M+2$ hyperparameters constituting $\Lambda, \sigma_{\vr{f}}$ and $\sigma_{\vr{e}}$ are simultaneously optimized for maximium marginal likelihood $\mathsf{p}\lbrack y \vert \vr{X}^{\intercal}\rbrack$, using the GPy software library.
 
         \subsection{Global Sensitivity Analysis} \label{sub:Method:GSA}
             Imagine a sample datum \(\vr{u}\) is drawn from a standardized normal test distribution
@@ -271,7 +274,7 @@
             \begin{equation} \label{eq:Method:GSA:gDef}
                 \tilde{\vr{f}} \deq
                 (2 \pi)^{M/2} \modulus{\Lambda} p\!\left(\vr{0};\vr{X}^{\intercal} , \Lambda^{2} + \vr{I}\right)
-                \circ\left(\sigma^{2}_\vr{f} \vr{K}^{-1} y(\vr{X})\right) 
+                \circ\left(\sigma^{2}_\vr{f} \vr{K}^{-1} y(\vr{X}^{\intercal})\right) 
             \end{equation}
             and
             \begin{align} \label{eq:Method:GSA:TSigmaDef}
@@ -284,7 +287,7 @@
             \begin{equation} \label{eq:Method:GSA:f_0}
                 f_{\vr{0}} = \ev{\bar{f}(\vr{x})} = \tilde{\vr{f}}^{\intercal} (\vr{1})_{\vr{N}}
             \end{equation}
-            which does not depend on $\Theta$ of course. Standardization of $y(\vr{X})$ instills an expectation of precisely zero here if $\vr{x}_{n} \sim \gauss{(\vr{0})_{\vr{M}}}{(\vr{I})_{\vr{M}\times\vr{M}}}$ (which is often not exactly true).
+            which does not depend on $\Theta$ of course. Standardization of $y(\vr{X}^{\intercal})$ instills an expectation of precisely zero here if $\vr{x}_{n} \sim \gauss{(\vr{0})_{\vr{M}}}{(\vr{I})_{\vr{M}\times\vr{M}}}$ (which is often not exactly true).
 
             Conditional variances may now be calculated as
             \begin{equation} \label{eq:Method:GSA:DmDef}
@@ -372,15 +375,16 @@
             \begin{algorithm}
                 \begin{algorithmic}[1]
                     \REPEAT
-                        \STATE Fit GP surrogate to $y(\vr{X})$, determining $\bar{f}(\vr{x})$ according to \cref{sub:Method:GP}
-                        \STATE Set $\tilde{\Theta} \leftarrow \Theta \leftarrow \vr{I}$
+                        \STATE Fit GP surrogate to $y(\vr{X}^{\intercal})$, determining $\bar{f}(\vr{x})$ according to \cref{sub:Method:GP}
+                        \STATE Set $\tilde{\Theta} \leftarrow \Theta \leftarrow \Theta_{\Pi} \leftarrow \vr{I}$
                         \FOR{$m=1$ \TO $M$}
                             \STATE According to \cref{sub:Method:GSA}, optimize \label{bum}
                             $$(\Xi)_{m\times\vr{M}\setminus\vr{m}} \leftarrow \argmax_{(\Xi)_{m\times\vr{M}\setminus\vr{m}}} D_{\vr{m}}((\Theta)_{\vr{m}\times\vr{M}})$$
                             where $(\Theta)_{\vr{m}\times\vr{M}} \deqr (\Xi)_{\vr{m}\times\vr{M}} \tilde{\Theta}$
-                            \STATE  Reset $\tilde{\Theta} \leftarrow \vr{Q}^{\intercal}$ where $\Theta^{\intercal} = \vr{Q}\vr{R}$
+                            \STATE  Update $\tilde{\Theta} \leftarrow \vr{Q}^{\intercal}$ where $\Theta^{\intercal} = \vr{Q}\vr{R}$
                         \ENDFOR
-                    \STATE Reset the input basis to $\vr{X} = \vr{X} \Theta^{\intercal}$
+                        \STATE Update the input basis to $\vr{X}^{\intercal} \leftarrow \Theta \vr{X}^{\intercal}$
+                        \STATE Update the overall rotation to $\Theta_{\Pi} \leftarrow \Theta \Theta_{\Pi}$
                     \UNTIL{$\Theta \approx \vr{I}$}
                 \end{algorithmic}
             \end{algorithm}
@@ -388,14 +392,37 @@
             The optimization in Step \ref{bum} is prone to fall into local optima, especially in the first iteration or two of the outermost loop. 
             It is recommended that these early iterations explore the behaviour of \M{(\Xi)_{m\times\vr{M}\setminus\vr{m}}} (by grid or randomized search) before attempting to exploit it (by gradient descent).
 
+            As the input basis is updated at each step, \M{\vr{X} = \vr{U}} ultimately. 
+            The key output of the algorithm is the overall rotation \M{\Theta_{\Pi}} of the original basis for \vr{x} to the optimal basis for \vr{u}.
+            
     \section{Results} \label{sec:Results}
         The algorithm described in \cref{sub:Method:Summary} has been tested on a suite of test functions.
         In each case an \M{N \times M} design matrix \vr{X} is sampled from a standard normal distribution. 
-        The input to the test function \M{f: \lbrack x_-, x_+ \rbrack^{M} \rightarrow \st{R}} is generally constructed as
+        The input to the test function \M{f\colon \lbrack x_-, x_+ \rbrack^{M} \to \st{R}} is generally constructed as
         \begin{equation} \label{def:Xhat}
-            \vr{\hat{X}}^{\intercal} = (x_+ - x_-) c(\Phi X^{\intercal}) + x_-(\vr{I})_{\vr{M} \times \vr{N}}
+            \vr{\hat{X}}^{\intercal} = (x_+ - x_-) c(\Phi \vr{X}^{\intercal}) + x_-(\vr{I})_{\vr{M} \times \vr{N}}
         \end{equation}
-        where \M{c} is the cumulative density function for independent standard normal random variables, and \M{\Phi} is a test rotation matrix which is either identity or random.
+        where \M{c\colon \st{R}^M\to\st{R}^M} is the cumulative density function for \M{M} independent standard normal random variables, and \M{\Phi} is a test rotation matrix. 
+        The corresponding optimal input rotation from \cref{sub:Method:Summary} is
+        \begin{equation}
+            \Theta_{\Pi} = \begin{cases}
+                \Theta_{\vr{I}} & \QT{if \M{\Phi} is identity matrix \M{\vr{I}}} \\
+                \Theta_{\vr{R}} & \QT{if \M{\Phi} is a random rotation matrix \M{\Phi_{\vr{R}}}}
+            \end{cases}
+        \end{equation}
+        which should recover the random rotation as
+        \begin{equation}
+            \Theta_{\vr{R}} = \Phi_{\vr{R}} \Theta_{\vr{I}}
+        \end{equation}
+        This provides the test measure
+        \begin{equation}
+            \modulus{\epsilon_{\Theta}} = \norm{\left(\Theta_{\vr{R}}^{\intercal} \Phi_{\vr{R}} \Theta_{\vr{I}} - \vr{I}\right)_{\underline{\vr{M}}\times\underline{\vr{M}}}}
+        \end{equation}
+        where \M{\norm{\cdot}} is the usual Frobenius matrix norm and \M{\underline{\vr{M}}} includes no irrelevant input directions (which might be rotated versions of each other). 
+        This reduced dimensionality is determined for each test function by the cumulative Sobol' index \M{\underline{\vr{M}}} exceeding 95\%.
+        All inputs and outputs are standardized to a mean of zero and variance of 1. All functions are tested with and without output noise \M{e \sim \gauss{0}{0.001}} added to \M{f(\vr{\hat{X}}^{\intercal})}. 
+        In the noiseless cases \M{e=0} we floor the Gaussian process noise variance as \M{\epsilon_\vr{e} \geq 10^{-6}} in order to prevent numerical instability in the calculation of Sobol' indices which is otherwise observed.
+
         \subsection{Sine Function} \label{sub:Results:Sin}
             \begin{equation} \label{def:Sin}
                 f(\vr{\hat{x}}) \deq \sin(\vr{\hat{x}}_1)
@@ -403,6 +430,13 @@
             \begin{gather*}
                 S_{\vr{1}} \deq S_{(1)} = 1
             \end{gather*}
+
+            \csvautotabular{results/sin.u1.rom.5/ard.formatted.S.csv}
+
+            \csvautotabular{results/sin.u1.rom.5/rom.optimized.formatted.S.csv}
+
+            \csvautotabular{results/sin.u1.random.5/rom.optimized.formatted.S.csv}
+
         \subsection{Ishigami Function} \label{sub:Results:Ishigami}
             \begin{equation} \label{def:Ishigami}
                 f(\vr{x}) \deq \left(1 + b \vr{x}_3^4\right) \sin(\vr{x}_1) + a \sin^{2}(\vr{x}_2)
@@ -412,10 +446,23 @@
                 S_{\vr{1}} \deq S_{(1)} = 0.313905 \QT{;}S_{(2)} = 0.442411 \QT{;} S_{(3)} = 0 \\
                 S_{\vr{2}} \deq S_{(1,2)} = 0.756316 \QT{;} S_{\vr{3}} \deq S_{(1,2,3)} = 1
             \end{gather*}
+
+            \csvautotabular{results/ishigami.rom.5/ard.formatted.S.csv}
+            
+            \csvautotabular{results/ishigami.rom.5/rom.optimized.formatted.S.csv}
+
+            \csvautotabular{results/ishigami.random.5/rom.optimized.formatted.S.csv}
+
         \subsection{Sobol' G Function} \label{sub:Results:SobolG}
             \begin{equation} \label{def:SobolG}
                 f(\vr{x}) \deq \prod_{i=1}^{D}{\frac{\modulus{4\vr{x}_i - 2} + \vr{a}_{i}}{1+\vr{a}_{i}}}
             \end{equation}
+
+            \csvautotabular{results/sobol_g.rom.5/ard.formatted.S.csv}
+            
+            \csvautotabular{results/sobol_g.rom.5/rom.optimized.formatted.S.csv}
+
+            \csvautotabular{results/sobol_g.random.5/rom.optimized.formatted.S.csv}
 
 
     \section{Discussion} \label{sec:Discussion}

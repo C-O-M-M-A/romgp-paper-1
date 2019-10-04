@@ -443,8 +443,7 @@
             \end{equation}
             \begin{gather*}
                 a = 7.0 \QT{;} b = 0.1 \\
-                S_{\vr{1}} \deq S_{(1)} = 0.313905 \QT{;}S_{(2)} = 0.442411 \QT{;} S_{(3)} = 0 \\
-                S_{\vr{2}} \deq S_{(1,2)} = 0.756316 \QT{;} S_{\vr{3}} \deq S_{(1,2,3)} = 1
+                S_{\vr{1}} = 0.3139 \QT{;}S_{\vr{2}} = 0.7563 \QT{;} S_{\vr{3}} = 1
             \end{gather*}
 
             \csvautotabular{results/ishigami.rom.5/ard.formatted.S.csv}
@@ -457,6 +456,12 @@
             \begin{equation} \label{def:SobolG}
                 f(\vr{x}) \deq \prod_{i=1}^{D}{\frac{\modulus{4\vr{x}_i - 2} + \vr{a}_{i}}{1+\vr{a}_{i}}}
             \end{equation}
+            \begin{gather*}
+                \vr{a}_{i} = (i-1)/2 \\
+                S_{\vr{1}} = 0.4107 \QT{;}S_{\vr{2}} = 0.6541 \QT{;} S_{\vr{3}} = 0.8113 \QT{;} S_{\vr{4}} = 0.9203 \QT{;} S_{\vr{5}} = 1
+            \end{gather*}
+ %           {{"si[1]", 0.410719}, {"si[2]", 0.182542}, {"si[3]", 0.10268}, {"si[4]", 0.065715}, {"si[5]", 0.0456354}}
+ %           {{"sc[1]", 0.410719}, {"sc[2]", 0.654107}, {"sc[3]", 0.811296}, {"sc[4]", 0.92028}, {"sc[5]", 1.}}
 
             \csvautotabular{results/sobol_g.rom.5/ard.formatted.S.csv}
             

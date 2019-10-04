@@ -6,7 +6,6 @@
 *.blg
 *.dvi
 *.out
-*.pdf
 *.synctex
 *.synctex.gz
 *.fdb_latexmk

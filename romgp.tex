@@ -62,6 +62,7 @@
     \usepackage{xspace} 
     \usepackage{ifthen} 
     \usepackage{csvsimple}
+    \usepackage{todonotes}
 
     \newcommand*{\M}[1]{\ensuremath{#1}\xspace} 
     \newcommand*{\vr}[1]{\M{\mathbf{#1}}} 
@@ -141,7 +142,7 @@
 
     %% main text
     \section{Introduction} \label{sec:Intro}
-        A broad range of engineering topics ultimately concern the response of some noisy scalar quantity $y(\vr{x})$ to its \M{M}-dimensional input $\vr{x}$. It is extremely desirable to reduce \M{M} as far as possible without materially impacting \M{y} for a number of reasons. 
+        A broad range of engineering topics ultimately concern the response of some noisy scalar quantity $y(\vr{x})$ to its \M{M}-dimensional input $\vr{x}$. It is extremely desirable to reduce \M{M} as far as possible without materially impacting \M{y} for a number of reasons. \todo{There is currently no mention of any relevant literature in this, please write this up}
         
         Firstly, $y(\vr{x})$ is usually onerous to obtain, from pilot plant, laboratory or simulation. Therefore mitigating the input variables to be controlled and monitored is disproportionately advantageous.
         
@@ -150,15 +151,56 @@
         
         Thirdly, refined examination of the response throughout the input space demands an ensemble of results $y(\vr{x})$ whose numerosity grows exponentially with \M{M}. Worse still, the basic geometry of high-dimensional space contains some nasty surprises, collectively known as the curse of dimensionality. In particular, nearly all the hypervolume of a high-dimensional input space resides proximate to its boundary hypersurface. Taken without prejudice, the input hypervolume consists almost entirely of anomalies, flung to the outer reaches and extremal in one input dimension or other. The curse thus manifests as a kind of engineering paranoia: failure (represented by extremal conditions) becomes almost inevitable as ever more inputs are measured or modelled.
 
-        The antidote to this perceived curse is to infer that monitoring more inputs must diminish their mutual independence or their relevance. The cure is to reduce the inputs to a set which is both mutually independent and highly relevant to the response. Topologically this corresponds to sweeping naively sampled input points away from the faces of a sampling hypercube. Most of the sample points get swept towards the heart of the input space, where operating conditions are normal and safe. The few remaining input samples get swept towards selected corners of the input hypercube, representing unsafe conditions in which several inputs record anomalous values simultaneously. Heuristically this captures failure due to inscrutably arcane causes, which is first detected in several measured variables at once, as well as failure due to unsafe levels in a single highly relevant input. Model order reduction basically evacuates then excises those regions of input space which are irrelevant to the response, or represent impossible combinations of dependent inputs. This can only by achieved by a principled analysis of the response $y(\vr{x})$ which detects both irrelevance and dependence. Which is dauntingly hard for all the same reasons it is so sorely needed.
+PLACEHOLDER
 
-        \subsection{Gaussian Process Surrogate}
-            In the first instance, the difficulty and expense in obtaining and analyzing response data is mitigated by adopting a surrogate or emulator. Perhaps the most informative and general of these is the Gaussian Process (GP), widely investigated and employed over the past few decades. The response $y(\vr{x})$ to arbitrarily fixed input is modelled as the sum $f(\vr{x})+e(\vr{x})$ of two Gaussian random variables encapsulating coherent signal and incoherent noise. The latter is characterised by a zero-mean distribution which is independent of the input:
+Variance-based sensitivity analysis by calculation of Sobol' indices \cite{Sobol2001} is one of the most widely used approaches for global sensitivity analysis (GSA). And with the increased popularity of using GPs as surrogate models, the main disadvantage to the Sobol' method was solved \cite{Oakley2004,Jin2004,Marrel2009}. The use of GPs provided an alternative method of estimating multidimensional integrals using Monte Carlo schemes. This alternative method was incredibly useful as the previous required a large number of model evaluations, nearly 10'000 are needed to reach 10\% precision \cite{Lamoureux2014}. GPs are an incredibly useful surrogate modelling technique for sensitivity analysis as they have the great advantage of being analytically tractable and so can calculate the sensitivity indices given a training set of model evaluations. Hence, using GPs will bypass a large number of model evaluations required by Monte Carlo methods. The derivation enabling the use of GP regression for analytical evaluation of variance-based sensitivity indices were first introduced by Jin et al. \cite{Jin2004} who applied the Sobol' index formula directly to the GP predictors. Before Oakley and O'Hagan \cite{Oakley2004} used the global stochastic model of a GP, providing the calculations to produce random variables as a new sensitivity measures. Oakley and O'Hagan's \cite{Oakley2004} model allows the sensitivity indices accuracy to be analysed due to the distribution of the variables. Marrel et al. \cite{Marrel2009} took the two methods further by comparing them and building on the work from Oakley and O'Hagan \cite{Oakley2004} leading to a novel algorithm which builds confidence intervals for the Sobol' indices. Marrel et al. \cite{Marrel2009} tested both methods on toy functions providing results that show very accurate sensitivity indices and satisfactory confidence intervals from the second method. However, when the approach was illustrated on real data to provide a sensitivity analysis on radionuclide groundwater transport, it was found that the confidence intervals were inaccurate for very low indices due to overestimation of the lowest Sobol' indices. Overall, the work from the three research groups \cite{Oakley2004,Jin2004,Marrel2009} provided an excellent method of using GP surrogate models for GSA. Consequently the research gives new authors the decision whether the method should calculate the indices using just the GPs prediction means or whether to use the GPs full distribution to produce for confidence intervals on the calculated indices.
+	
+	Since the derivation of the calculations which allow GPs to be used for the computation of the Sobol' sensitivity indices, the technique has been used in many disciplines. For example, Rohmer and Foerster \cite{Rohmer2011} used the technique to analyse large-scale numerical landslide models. Due to the limited knowledge of the slip surface in the La Frasse landslide, the simulator was approximated using a small size training data for the GP. Therefore, Rohmer and Foerster inclined to use confidence intervals on the sensitivity measures to outline regions where the GP was unsure. The work concluded by providing ideas of future work by the design of experiments, whereby in the identified unsure regions, further simulator runs should be carried out allowing the GP model to learn further and reduce the confidence intervals.
+	
+	The method has also been proven to aid in engineering system safety by providing an early validation of health indicators for detection and identification in design sites \cite{Lamoureux2014}. The work used a GP to emulate a pumping unit of an aircraft fuel system. Using Latin hypercube sampling, the GP learnt from 400 model evaluations before the Sobol' indices for the 20 inputs were computed. On this occasion, due to a large number of model evaluations and a large number of model inputs, the authors opted to calculate the Sobol' indices alone without any confidence intervals. Interestingly, this work computed both the first-order indices and the total indices, consequently finding very close results. Therefore, this indicates that the inputs have few or no correlations and so the most influential parameter for each health indicator was found.
+	
+	However, issues may occur when calculating the Sobol' indices of input parameters which are correlated because the construction of such measures rely on the assumption that inputs are independent. This is because if inputs are dependent on one another then the amount of variance due to a given parameter may be influenced by its dependence on another input \cite{Mara2012}. Therefore, a lot of work has been conducted towards dealing with dependency in sensitivity analysis studies \cite{Xu2008,Li2010,Caniou2010,Chastaing2015}. However, these methods concentrate solely on the GSA method, failing to incorporate using them with a GP surrogate model. Another issue with the previous studies is that the number of decomposition components exponentially grows with the model dimension \cite{Chastaing2015a}. Although, other interesting methods have been invented to deal with correlated inputs which can be used with GPs. For example, Chastaing and Le Gratiet \cite{Chastaing2015a} extended the work done by Durrande et al. \cite{Durrande2013} to deal with dependent inputs. In this work the GP is specified to a special class of ANOVA kernels \cite{Berlinet2004}, which is functionally decomposed as a sum of processes indexed by increasing dimension input variables. The work is similar to that of Caniou and Sudret \cite{Caniou2010} except it considers the use of GPs instead of the polynomial chaos expansion. Then Li and Rabitz \cite{Li2012} developed another method to decompose the output variance by using a hierarchical orthogonality condition. The result of this reduces the prior formulas to them used for independent variables. Interestingly, Srivastava et al. \cite{Srivastava2017} investigated the Li-Rabitz framework, comparing it to the original variance-based method using GPs. The research used both methods in an attempt to understand which calibration parameters can be fixed without losing output variability for an aircraft model. Consisting of 100 calibration parameters which had both correlated inputs and independent inputs, the problem had over 4000 two-way interactions, ensuring the complexity high enough to not be able to calculate all the two-way interaction indices. Therefore, the work showed the complexities involved in real-world applications, inferring that although separate levels of interactions between inputs can be calculated with Sobol' indices, it is not always possible to separate the sensitivities into structural and correlation elements. However, when the alternative method of approximations was used, the computed sensitivities had inaccuracies even though the relative ordering of variables were still correct. Therefore, it is important to understand that whichever method used, care must be taken when inputs are correlated.
+	
+	Reduced order modelling concerns reducing the dimensions $d$ of a $d$-dimensional input $\vr{x}$ while preserving the behaviour of the output $y$. The result of this reduces the inputs to a set which is both mutually independent and highly relevant to the response. An exciting and novel method of dimensionality reduction created by Milton and Brown [ref] achieves the reduced order model (ROM) by an optimal rotation of the input basis. The ROM is achieved through the utilization of a GP surrogate model that facilitates GSA via Sobol' indices \cite{Sobol2001}. Simply, the method rotates the input basis so that the emulator only significantly depends on the most relevant rotated input dimensions. 
+	
+	However, the mathematics behind the analysis is difficult and so in this report, a very brief account will be given. For a full derivation please refer to the paper by Milton and Brown \textcolor{red}{[ref]}.
+	
+	The overall goal is to replace the input matrix $\vr{X}$ of size $(d\times n)$ with a rotated input basis $\vr{U}$ of size $(d\times n)$. When looking at a sample datum $\vr{u}$, it can be defined to provide another input to the emulator upon rotation by a row orthogonal matrix $\vr{\Theta}$
+	\begin{equation}
+	\label{Eq:ROM_Rotation}
+	\vr{x} =: \vr{u}^T \vr{\Theta}
+	\end{equation}
+	
+	Therefore, the Gaussian process can now be represented by the rotated input. Where the mean $\bar{f}(\vr{x})$, learnt from the original training data, can now be conditioned by calculating the variance of $\bar{f}(\vr{u}^T \vr{\Theta})$ due to the first $d$ components of $\vr{u}$. Hence, GSA is proceeding in the same fashion now as it would have by calculating ordinary Sobol' indices. However, the analytic expressions for the variance can only be expressed due to the ARD kernel \cite{Wipf2007}. The algebra deriving these expressions would be vastly complicated by any other kernel.
+	
+	The ROM is now completed by maximising the Sobol' index of each rotated input in turn by entirely optimising $\vr{\Theta}$ row by row from top to bottom. The work is done using gradient descent, repeatedly rotating the input basis by $\vr{\Theta}$ until the Sobol' indices are maximized so much that $\vr{\Theta} \approx \vr{I}$.
+	
+	This specific method of ROM is incredibly useful for the research conducted in this project due to it being directly derived using GPs and GSA. The method ultimately combines two of the main tools used in this research to create a new method that will benefit a broad range of engineering topics. The desire to reduce the dimensions of inputs without impacting the output is twofold: to achieve accurate descriptions of a system at a much lower computational cost and to provide a means of which a process can be visualized. For example, an industrial plant may have an output that wants to be analysed but is difficult to obtain and many input variables can be varied. So analysing the change in these variables to the change in the output can be difficult. A ROM can be used to capture most of, if not all of, the system's fundamental dynamics with a much smaller amount of dimensions to consider. This could make a significant difference as simple as being able to plot the output with respect to just one or two input dimensions instead of having to consider a large degree of variables. This method also introduces far fewer complications involving the use of GSA with dependent inputs due to it reducing the input to sets which are independent. The rotation of the input space represents combinations of dependent inputs and so the analysis deals with the issue of dependent inputs by simply combining them, ensuring each rotated basis is independent to one another.
+	
+	However, the ROM does have a major limitation as it's goal is to reduce computational costs yet this is only achieved once the ROM has been created. Before that, the ROM stresses a huge computational burden due to the optimization of $\vr{\Theta}$ creating many iterations of GP training. This repeated loop of training a GP, then calculating it's Sobol' indices, then rotating the input basis creates a huge amount of computational costs. Therefore, an interesting concept to address would be whether the ROM could encapsulate the use of sparse GPs to be able to reduce the computational costs.
+
+PLACEHOLDER
+
+
+
+        The antidote to this perceived curse is to infer that monitoring more inputs must diminish their mutual independence or their relevance. The cure is to reduce the inputs to a set which is both mutually independent and highly relevant to the response. Topologically this corresponds to sweeping naively sampled input points away from the faces of a sampling hypercube. Most of the sample points get swept towards the heart of the input space, where operating conditions are normal and safe. The few remaining input samples get swept towards selected corners of the input hypercube, representing unsafe conditions in which several inputs record anomalous values simultaneously. Heuristically this captures failure due to inscrutably arcane causes, which is first detected in several measured variables at once, as well as failure due to unsafe levels in a single highly relevant input. Model order reduction basically evacuates then excises those regions of input space which are irrelevant to the response, or represent impossible combinations of dependent inputs. This can only by achieved by a principled analysis of the response $y(\vr{x})$ which detects both irrelevance and dependence. Which is dauntingly hard for all the same reasons it is so sorely needed.\todo{this all needs to be described with respect to existing literature}
+
+The purpose of this work is to present a Global Sensitivity Analysis based model order reduction approach, which uses 
+\begin{itemize}
+\item One point; \\
+\item second point \\
+\end{itemize}
+
+This paper is organised as follows: Section 
+
+\section{Review of Gaussian Processes and Global Sensitivity Analysis} \label{sec:TheoryReview}
+   \subsection{Gaussian Process Surrogate}
+            In order to avoid the difficulty and expense in obtaining and analyzing response data we adopt the a Gaussian Process (GP) as a surrogate or emulator. The response $y(\vr{x})$ to arbitrarily fixed input is modelled as the sum $f(\vr{x})+e(\vr{x})$ of two Gaussian random variables encapsulating coherent signal and incoherent noise. The latter is characterized by a zero-mean distribution that is independent of the input:
             \begin{equation*}
                 e(\vr{x}) \sim \gauss{0}{\sigma^{2}_\vr{e}}
             \end{equation*}
 
-            The signal $f(\vr{x})$ is characterized by its covariance kernel $\sigma^{2}_\vr{f} k(\vr{x}_{n},\vr{x})$ which measures the similarity between inputs $\vr{x}_{n}$ and $\vr{x}$, and propagates any similarity to $y(\vr{x}_{n})$ and $y(\vr{x})$. In the majoriy of applications, the kernel is naturally stationary, a function of $(\vr{x}-\vr{x}_{n})$ alone. We shall further assume that the kernel is twice differentiable at its maximium $(\vr{x}=\vr{x}_{n})$. Once forced to exist, the Hessian at the maximum must be symmetric negative semidefinite and therefore diagonalizes to
+            The signal $f(\vr{x})$ is characterized by its covariance kernel $\sigma^{2}_\vr{f} k(\vr{x}_{n},\vr{x})$ which measures the similarity between inputs $\vr{x}_{n}$ and $\vr{x}$, and propagates any similarity to $y(\vr{x}_{n})$ and $y(\vr{x})$. In the majority of applications, the kernel is naturally stationary, a function of $(\vr{x}-\vr{x}_{n})$ alone. We shall further assume that the kernel is twice differentiable at its maximum $(\vr{x}=\vr{x}_{n})$. Hence, the Hessian at the maximum must be symmetric negative semi-definite and therefore diagonalizes to
             \begin{equation*}
                 \partial_{\vr{x}\vr{x}} \log k(\vr{x},\vr{x}) \deqr -\Theta^{\intercal}\Lambda^{-2}\Theta
             \end{equation*}
@@ -172,10 +214,10 @@
                 \right)             
             \end{equation*}
             This paper is exclusively concerned with kernels of this form. The differentiability we have imposed forces the power spectrum of the signal $f$ to decay rapidly. 
-            Modes of response oscillating rapidly with $\vr{x}$ are intepreted as noise by the GP, as the kernel smoothes $y$ into $f$. Such regularization is often, but not always, desirable, to avoid wildly unreliable interpolation of an overfit regression. We shall expand on this point later.
+            Modes of response oscillating rapidly with $\vr{x}$ are interpreted as noise by the GP, as the kernel smoothes $y$ into $f$. Such regularization is often, but not always, desirable, to avoid wildly unreliable interpolation of an overfit regression.
 
         \subsection{Kernel Optimization}
-            In order to deal with the curse of dimensionality we propose to find orthogonal rotation matrix $\Theta$ and diagonal lengthscale matrix $\Lambda$ which best fit observed responses $y(\vr{X}^{\intercal})$. The largest lengthscales in $\Lambda$ mark the least relevant directions that can be ignored. However, the best fit must optimize $M(M+1)/2+2$ hyperparameters simultaneously to determine $\Theta, \Lambda, \sigma^{2}_\vr{f}$ and $\sigma^{2}_\vr{e}$. As a direct optimization of such a large problem may sto get bogged down in local optima. Exploratory grid search is astronomically expensive $O(\exp(M(M+1)/2)$, likewise any random sampling which is not hopelessly sparse. Perhaps for these reasons, $\Theta$ has always been fixed as identity in the literature. The lengthscales comprising $\Lambda$ are also usually identical, furnishing a radial basis function (RBF) kernel. The few studies where $\Lambda$ is not identical speak of an automatic relevance determination (ARD) kernel, with model order reduction in mind. However, admitting no rotation $\Theta$ severely restricts the reductions available. If relevant inputs are mutually dependent, they must all be retained. Rotation, on the contrary, combines them into a low dimensional subspace.
+            In order to deal with the curse of dimensionality we propose to find orthogonal rotation matrix $\Theta$ and diagonal length-scale matrix $\Lambda$ which best fit observed responses $y(\vr{X}^{\intercal})$. The largest lengthscales in $\Lambda$ mark the least relevant directions that can be ignored. However, the best fit must optimize $M(M+1)/2+2$ hyperparameters simultaneously to determine $\Theta, \Lambda, \sigma^{2}_\vr{f}$ and $\sigma^{2}_\vr{e}$. As a direct optimization of such a large problem may sto get bogged down in local optima. Exploratory grid search is astronomically expensive $O(\exp(M(M+1)/2)$, likewise any random sampling which is not hopelessly sparse. Perhaps for these reasons, $\Theta$ has always been fixed as identity in the literature. The lengthscales comprising $\Lambda$ are also usually identical, furnishing a radial basis function (RBF) kernel. The few studies where $\Lambda$ is not identical speak of an automatic relevance determination (ARD) kernel, with model order reduction in mind. However, admitting no rotation $\Theta$ severely restricts the reductions available. If relevant inputs are mutually dependent, they must all be retained. Rotation, on the contrary, combines them into a low dimensional subspace.
 
         \subsection{Global Sensitivity Analysis}
             This paper proposes to achieve kernel optimization indirectly, via global sensitivity analysis (GSA).
@@ -371,8 +413,10 @@
             The later rows could be left unoptimized, though they are successively cheaper to obtain.
     
         \subsection{Summary} \label{sub:Method:Summary}
-            The main loop of the optimizations reported in the next Section is:
+            The main loop of the algorithm is described i:
+            
             \begin{algorithm}
+            \caption{Summary of the basis optimization algorithm.}
                 \begin{algorithmic}[1]
                     \REPEAT
                         \STATE Fit GP surrogate to $y(\vr{X}^{\intercal})$, determining $\bar{f}(\vr{x})$ according to \cref{sub:Method:GP}
@@ -389,16 +433,13 @@
                 \end{algorithmic}
             \end{algorithm}
 
-            The optimization in Step \ref{bum} is prone to fall into local optima, especially in the first iteration or two of the outermost loop. 
-            It is recommended that these early iterations explore the behaviour of \M{(\Xi)_{m\times\vr{M}\setminus\vr{m}}} (by grid or randomized search) before attempting to exploit it (by gradient descent).
+            During testing the optimization in Step \ref{bum} is found to be prone to converge to local optima, especially in the first iteration or two of the outermost loop. An approach was therefore developed that the early iterations explore the behaviour of \M{(\Xi)_{m\times\vr{M}\setminus\vr{m}}} by grid or randomized search, before attempting exploitation by gradient descent).
 
             As the input basis is updated at each step, \M{\vr{X} = \vr{U}} ultimately. 
             The key output of the algorithm is the overall rotation \M{\Theta_{\Pi}} of the original basis for \vr{x} to the optimal basis for \vr{u}.
             
     \section{Results} \label{sec:Results}
-        The algorithm described in \cref{sub:Method:Summary} has been tested on a suite of test functions.
-        In each case an \M{N \times M} design matrix \vr{X} is sampled from a standard normal distribution. 
-        The input to the test function \M{f\colon \lbrack x_-, x_+ \rbrack^{M} \to \st{R}} is generally constructed as
+        In this section, the method described in \cref{sub:Method:Summary} is applied to a series of test functions to evaluate its performance. In each case an \M{N \times M} design matrix \vr{X} is sampled from a standard normal distribution. The input to the test function \M{f\colon \lbrack x_-, x_+ \rbrack^{M} \to \st{R}} is generally constructed as
         \begin{equation} \label{def:Xhat}
             \vr{\hat{X}}^{\intercal} = (x_+ - x_-) c(\Phi \vr{X}^{\intercal}) + x_-(\vr{I})_{\vr{M} \times \vr{N}}
         \end{equation}
@@ -418,10 +459,10 @@
         \begin{equation}
             \modulus{\epsilon_{\Theta}} = \norm{\left(\Theta_{\vr{R}}^{\intercal} \Phi_{\vr{R}} \Theta_{\vr{I}} - \vr{I}\right)_{\underline{\vr{M}}\times\underline{\vr{M}}}}
         \end{equation}
-        where \M{\norm{\cdot}} is the usual Frobenius matrix norm and \M{\underline{\vr{M}}} includes no irrelevant input directions (which might be rotated versions of each other). 
+        where \M{\norm{\cdot}} is the usual Frobenius matrix norm and \M{\underline{\vr{M}}} includes no irrelevant input directions\todo{what do we mean irrelevant?}. 
         This reduced dimensionality is determined for each test function by the cumulative Sobol' index \M{\underline{\vr{M}}} exceeding 95\%.
         All inputs and outputs are standardized to a mean of zero and variance of 1. All functions are tested with and without output noise \M{e \sim \gauss{0}{0.001}} added to \M{f(\vr{\hat{X}}^{\intercal})}. 
-        In the noiseless cases \M{e=0} we floor the Gaussian process noise variance as \M{\epsilon_\vr{e} \geq 10^{-6}} in order to prevent numerical instability in the calculation of Sobol' indices which is otherwise observed.
+        In the noiseless cases \M{e=0} set a lower bound on the Gaussian process noise variance as \M{\epsilon_\vr{e} \geq 10^{-6}} in order to prevent numerical instability in the calculation of Sobol' indices which is otherwise observed. \todo{How are the inputs obtained?}
 
         \subsection{Sine Function} \label{sub:Results:Sin}
             \begin{equation} \label{def:Sin}
@@ -488,7 +529,7 @@
         %% TeX file.
 
 
-        \bibliographystyle{elsarticle-num} 
+    \bibliographystyle{elsarticle-num} 
     \bibliography{main}
 
 \end{document}

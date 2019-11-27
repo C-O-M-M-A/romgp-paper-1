@@ -62,6 +62,7 @@
     \usepackage{xspace} 
     \usepackage{ifthen} 
     \usepackage{csvsimple}
+    \usepackage{todonotes}
 
     \newcommand*{\M}[1]{\ensuremath{#1}\xspace} 
     \newcommand*{\vr}[1]{\M{\mathbf{#1}}} 
@@ -106,7 +107,7 @@
         %% \address{Address\fnref{label3}}
         %% \fntext[label3]{}
 
-        \title{Optimal Reduced Order Modelling}
+        \title{Minimum  Reduced Order Modelling}
 
         %% use optional labels to link authors explicitly to addresses:
         %% \author[label1,label2]{}
@@ -142,29 +143,39 @@
 
     %% main text
     \section{Introduction} \label{sec:Intro}
-        A broad range of engineering topics ultimately concern the response of some noisy scalar quantity $y(\vr{x})$ to its \M{M}-dimensional input $\vr{x}$. It is extremely desirable to reduce \M{M} as far as possible without materially impacting \M{y} for a number of reasons. 
+        The simulation of a large range of engineering systems requires the application of complex computational models. The use of these models often requires considerable computational effort, and can be prohibitive when attempting to use the underlying model as part of a system optimization. As these models, ultimately, provide the response of some noisy scalar quantity $y(\vr{x})$ to its \M{M}-dimensional input $\vr{x}$; it would therefore be extremely desirable to reduce \M{M} as far as possible using a surrogate or emulator without materially impacting the fidelity of the prediction of \M{y} (reference Sacks). 
         
-        Firstly, $y(\vr{x})$ is usually onerous to obtain, from pilot plant, laboratory or simulation. Therefore mitigating the input variables to be controlled and monitored is disproportionately advantageous.
+        One popular method with which to construct such surrogates models is with Gaussian Processes (GPs)(references), given that they are non-parametric, flexible, efficient and analytically tractable (references). Other, parametric, methods include Polynomial Chaos Expansions or POD,... . These, however, are less flexible...
         
-        Secondly, visualisation and analysis is far easier and more fruitful in a low dimensional space.
-        There is epistemilogical value in model-order reduction for its own sake, and to inspire and guide advances in theory or modelling.
+        The use of all techniques for the development of surrogate models requires an exponentially growing number of outputs results $y(\vr{x})$ throughout the input space as \M{M} increases: known as the curse of dimensionality. There is therefore a significant driver for methods with which to reduce the dimensionality of the input space, and so a more efficient means of generating the emulator. One way of selecting the directions of most influence is through the application of Global Sensitivity Analysis, however where these directions are not aligned with the input basis this resulting dimensionality reduction is sub-optimal (references).
         
-        Thirdly, refined examination of the response throughout the input space demands an ensemble of results $y(\vr{x})$ whose numerosity grows exponentially with \M{M}. Worse still, the basic geometry of high-dimensional space contains some nasty surprises, collectively known as the curse of dimensionality. In particular, nearly all the hypervolume of a high-dimensional input space resides proximate to its boundary hypersurface. Taken without prejudice, the input hypervolume consists almost entirely of anomalies, flung to the outer reaches and extremal in one input dimension or other. The curse thus manifests as a kind of engineering paranoia: failure (represented by extremal conditions) becomes almost inevitable as ever more inputs are measured or modelled.
+        As such a number of approaches to obtaining the optimal dimensionality reduction have been developed (references), which can broadly be catagorized through their use of different sensitivity measures. For example, \cite{Constantine2014} proposed a means of calculating this optimal reduced dimensional space, the Active Subspace, through a derivative sensitivity measure. This was found to work very effectively for a broad range of problems but requires the information of the derivative which is typically not available for very large or complex systems. \cite{Liu2017} suggested using...
+        
+        Minimum Average Variance Estimation (MAVE), such as that  proposed by (reference), on the other hand uses variance-based sensitivity measures 
+         
+A key variance-based sensitivity measure are the Sobol' indices \cite{Sobol2001}, which is one of the most widely used approaches for GSA. With the increased popularity of using GPs as surrogate models, the main disadvantage to the Sobol' method was solved \cite{Oakley2004,Jin2004,Marrel2009}. The use of GPs provided an alternative method of estimating multidimensional integrals using Monte Carlo schemes. This alternative method was incredibly useful as the previous required a large number of model evaluations, nearly 10'000 are needed to reach 10\% precision \cite{Lamoureux2014}. GPs are an incredibly useful surrogate modelling technique for sensitivity analysis as they have the great advantage of being analytically tractable and so can calculate the sensitivity indices given a training set of model evaluations.  The derivation enabling the use of GP regression for analytical evaluation of variance-based sensitivity indices were first introduced by Jin et al. \cite{Jin2004} who applied the Sobol' index formula directly to the GP predictors. Before Oakley and O'Hagan \cite{Oakley2004} used the global stochastic model of a GP, providing the calculations to produce random variables as a new sensitivity measures. Oakley and O'Hagan's \cite{Oakley2004} model allows the sensitivity indices accuracy to be analysed due to the distribution of the variables. Marrel et al. \cite{Marrel2009} extended this comparing them and building on the work from Oakley and O'Hagan \cite{Oakley2004} leading to a novel algorithm which builds confidence intervals for the Sobol' indices. Marrel et al. \cite{Marrel2009} tested both methods on toy functions providing results that show very accurate sensitivity indices and satisfactory confidence intervals from the second method. However, when the approach was illustrated on real data to provide a sensitivity analysis on radionuclide groundwater transport, it was found that the confidence intervals were inaccurate for very low indices due to overestimation of the lowest Sobol' indices.
 
-        The antidote to this perceived curse is to infer that monitoring more inputs must diminish their mutual independence or their relevance. The cure is to reduce the inputs to a set which is both mutually independent and highly relevant to the response. Topologically this corresponds to sweeping naively sampled input points away from the faces of a sampling hypercube. Most of the sample points get swept towards the heart of the input space, where operating conditions are normal and safe. The few remaining input samples get swept towards selected corners of the input hypercube, representing unsafe conditions in which several inputs record anomalous values simultaneously. Heuristically this captures failure due to inscrutably arcane causes, which is first detected in several measured variables at once, as well as failure due to unsafe levels in a single highly relevant input. Model order reduction basically evacuates then excises those regions of input space which are irrelevant to the response, or represent impossible combinations of dependent inputs. This can only by achieved by a principled analysis of the response $y(\vr{x})$ which detects both irrelevance and dependence. Which is dauntingly hard for all the same reasons it is so sorely needed.
+The purpose of this work is to present a Global Sensitivity Analysis based model order reduction approach, which uses 
+\begin{itemize}
+\item One point; 
+\item second point.
+\end{itemize}
 
-        \subsection{Gaussian Process Surrogate}
-            In the first instance, the difficulty and expense in obtaining and analyzing response data is mitigated by adopting a surrogate or emulator. Perhaps the most informative and general of these is the Gaussian Process (GP), widely investigated and employed over the past few decades. The response $y(\vr{x})$ to arbitrarily fixed input is modelled as the sum $f(\vr{x})+e(\vr{x})$ of two Gaussian random variables encapsulating coherent signal and incoherent noise. The latter is characterised by a zero-mean distribution which is independent of the input:
+This paper is organised as follows: \cref{sec:TheoryReview} presents a review of the concepts and measures that are used in this work. \cref{sec:Method} describes the approach developed, including the details of the calculation of the Sobol' indices and of the optimization of the basis of the optimal low dimensional subspace. \cref{sec:Results} presents the application of the method to a variety of test problems to assess its performance, while \cref{sec:Conclusions} summarises our findings and directions for future work. 
+
+\section{Review of Gaussian Processes and Global Sensitivity Analysis} \label{sec:TheoryReview}
+   \subsection{Gaussian Process Surrogate}
+            In order to avoid the difficulty and expense in obtaining and analyzing response data from a computationally heavy model we adopt a Gaussian Process (GP) as a surrogate or emulator. The response $y(\vr{x})$ to arbitrarily fixed input is modelled as the sum $f(\vr{x})+e(\vr{x})$ of two Gaussian random variables encapsulating coherent signal and incoherent noise. The latter is characterized by a zero-mean distribution that is independent of the input:
             \begin{equation*}
                 e(\vr{x}) \sim \gauss{0}{\sigma^{2}_\vr{e}}
             \end{equation*}
 
-            The signal $f(\vr{x})$ is characterized by its covariance kernel $\sigma^{2}_\vr{f} k(\vr{x}_{n},\vr{x})$ which measures the similarity between inputs $\vr{x}_{n}$ and $\vr{x}$, and propagates any similarity to $y(\vr{x}_{n})$ and $y(\vr{x})$. In the majoriy of applications, the kernel is naturally stationary, a function of $(\vr{x}-\vr{x}_{n})$ alone. We shall further assume that the kernel is twice differentiable at its maximium $(\vr{x}=\vr{x}_{n})$. Once forced to exist, the Hessian at the maximum must be symmetric negative semidefinite and therefore diagonalizes to
+            The signal $f(\vr{x})$ is characterized by its covariance kernel $\sigma^{2}_\vr{f} k(\vr{x}_{n},\vr{x})$ which measures the similarity between inputs $\vr{x}_{n}$ and $\vr{x}$, and propagates any similarity to $y(\vr{x}_{n})$ and $y(\vr{x})$. In the majority of applications, the kernel is naturally stationary, a function of $(\vr{x}-\vr{x}_{n})$ alone. We shall further assume that the kernel is twice differentiable at its maximum $(\vr{x}=\vr{x}_{n})$. Hence, the Hessian at the maximum must be symmetric negative semi-definite and therefore diagonalizes to
             \begin{equation*}
                 \partial_{\vr{x}\vr{x}} \log k(\vr{x},\vr{x}) \deqr -\Theta^{\intercal}\Lambda^{-2}\Theta
             \end{equation*}
 
-            When $\modulus{\vr{x}-\vr{x}_{n}}$ is large the kernel value is miniscule in any any relevant direction. The kernel details are therefore largely irrelevant to the response \emph{any} time $\modulus{\vr{x}-\vr{x}_{n}}$ is large, advocating (if not justifying) the Taylor approximation
+            When $\modulus{\vr{x}-\vr{x}_{n}}$ is large the kernel value is miniscule in any any relevant direction. The kernel details are therefore largely irrelevant to the response \emph{any} time $\modulus{\vr{x}-\vr{x}_{n}}$ is large, advocating (if not justifying)\todo{which is it?} the Taylor approximation\todo{this paragraph basically needs to say when x is big y is small so we can use this expansion, and if this is common in the literature (which I imagine it is) we include a suitable reference}
             \begin{equation*}
                 k(\vr{x}_{n},\vr{x}) = 
                 \exp \left(-\frac
@@ -172,11 +183,11 @@
                     \left(1+O(\modulus{\vr{x}-\vr{x}_{n}})\right)
                 \right)             
             \end{equation*}
-            This paper is exclusively concerned with kernels of this form. The differentiability we have imposed forces the power spectrum of the signal $f$ to decay rapidly. 
-            Modes of response oscillating rapidly with $\vr{x}$ are intepreted as noise by the GP, as the kernel smoothes $y$ into $f$. Such regularization is often, but not always, desirable, to avoid wildly unreliable interpolation of an overfit regression. We shall expand on this point later.
+            The differentiability we have imposed forces the power spectrum of the signal $f$ to decay rapidly. 
+            Modes of response oscillating rapidly with $\vr{x}$ are interpreted as noise by the GP, as the kernel smoothes $y$ into $f$. Such regularization is often, but not always, desirable, to avoid wildly unreliable interpolation of an overfit regression.
 
         \subsection{Kernel Optimization}
-            The cure to the curse of dimensionality is to find orthogonal rotation matrix $\Theta$ and diagonal lengthscale matrix $\Lambda$ which best fit observed responses $y(\vr{X}^{\intercal})$. The largest lengthscales in $\Lambda$ mark the least relevant directions, to be pruned. However, the best fit must optimize $M(M+1)/2+2$ hyperparameters simultaneously to determine $\Theta, \Lambda, \sigma^{2}_\vr{f}$ and $\sigma^{2}_\vr{e}$. An exploitative, directed optimization of such numerosity is almost bound to get bogged down in local optima. Exploratory grid search is astronomically expensive $O(\exp(M(M+1)/2)$, likewise any random sampling which is not hopelessly sparse. Perhaps for these reasons, $\Theta$ has always been fixed as identity in the literature. The lengthscales comprising $\Lambda$ are also usually identical, furnishing a radial basis function (RBF) kernel. The few studies where $\Lambda$ is not identical speak of an automatic relevance determination (ARD) kernel, with model order reduction in mind. However, admitting no rotation $\Theta$ severely restricts the reductions available. If relevant inputs are mutually dependent, they must all be retained. Rotation, on the contrary, combines them into a low dimensional subspace.
+            In order to deal with the curse of dimensionality we propose to find orthogonal rotation matrix $\Theta$ and diagonal length-scale matrix $\Lambda$ which best fit observed responses $y(\vr{X}^{\intercal})$. The largest lengthscales in $\Lambda$ mark the least relevant directions that can be ignored. However, the best fit must optimize $M(M+1)/2+2$ hyperparameters simultaneously to determine $\Theta, \Lambda, \sigma^{2}_\vr{f}$ and $\sigma^{2}_\vr{e}$. As a direct optimization of such a large problem may result in obtaining only local optima. Exploratory grid search is astronomically expensive $O(\exp(M(M+1)/2)$, likewise any random sampling which is not hopelessly sparse. Perhaps for these reasons\todo{the previous two sentences need to be put after the descript of what the literature do, as a contrast to what we're going to do}, $\Theta$ has always been fixed as identity in the literature. The lengthscales comprising $\Lambda$\todo{who has done this?} are also usually identical, furnishing a radial basis function (RBF) kernel. The few studies where $\Lambda$ is not identical speak of an automatic relevance determination (ARD) kernel, with model order reduction in mind\todo{who says this?}. However, admitting no rotation $\Theta$ severely restricts the reductions available.\todo{is this sentence necessary?} If relevant inputs are mutually dependent, they must all be retained. Rotation, on the contrary, combines them into a low dimensional subspace.\todo{as we're not testing dependent variables this should be removed}
 
         \subsection{Global Sensitivity Analysis}
             This paper proposes to achieve kernel optimization indirectly, via global sensitivity analysis (GSA).
@@ -188,7 +199,7 @@
             \begin{equation*}
                 S_{\vr{m}}((\Theta)_{\vr{m}\times\vr{M}}) \deq \var[\vr{x}]{\ev[\vr{x}]{\bar{f}(\vr{x}) \vert (\Theta \vr{x})_{\vr{m}}}} / \var[\vr{x}]{\bar{f}(\vr{x})} \leq 1
             \end{equation*}
-            to subspaces $(\Theta \vr{x})_{\vr{m}}$ of dimension $m\leq M$. These may be calculated analytically for the exponential quadratic kernel used here. To cure to the curse of dimensionality is to find $(\Theta)_{\vr{m}\times\vr{M}}$ such that $S_{\vr{m}} \approx 1$ for $m\ll M$. The rotation sub-matrix $(\Theta)_{\vr{m}\times\vr{M}}$ has a manageable number of elements if $m$ is small. This paper takes the most economical approach,maximizing $S_{\vr{m}}$ for $m=1,\ldots,M$ in turn, to find the most relevant direction, then the second most relevant, and so on. Other approaches are considered in \cref{sec:Discussion}.
+            to subspaces $(\Theta \vr{x})_{\vr{m}}$ of dimension $m\leq M$. These may be calculated analytically for the exponential quadratic kernel used here. To cure to the curse of dimensionality is to find $(\Theta)_{\vr{m}\times\vr{M}}$ such that $S_{\vr{m}} \approx 1$ for $m\ll M$. The rotation sub-matrix $(\Theta)_{\vr{m}\times\vr{M}}$ has a manageable number of elements if $m$ is small. This paper takes the most economical approach,maximizing $S_{\vr{m}}$ for $m=1,\ldots,M$ in turn, to find the most relevant direction, then the second most relevant, and so on. 
 
 
     \section{Methodology} \label{sec:Method}
@@ -221,7 +232,7 @@
             This work exclusively employs objective Bayesian priors
             \begin{align*}
                 f(\vr{X}^{\intercal}) &\sim \gauss{(\vr{0})_{\vr{N}}}{\sigma_{\vr{f}}^{2} k(\vr{X}^{\intercal},\vr{X}^{\intercal})} \\
-                e(\vr{X}^{\intercal}) &\sim \gauss{(\vr{0})_{\vr{N}}}{\sigma_{\vr{e}}^{2} (\vr{1})_{\vr{N}\times\vr{N}}} 
+                e(\vr{X}^{\intercal}) &\sim \gauss{(\vr{0})_{\vr{N}}}{\sigma_{\vr{e}}^{2} (\vr{I})_{\vr{N}\times\vr{N}}} 
             \end{align*}
             built on an ARD kernel \cite{Wipf.Nagarajan2007, Neal1996}
             \begin{equation} \label{eq:Method:GP:Kernel}
@@ -245,14 +256,14 @@
             \end{equation}
         where
             \begin{equation} \label{eq:Method:GP:KDef}
-                \vr{K} \deq \sigma^{2}_\vr{f} k(\vr{X}^{\intercal},\vr{X}^{\intercal}) + \sigma_{\vr{e}}^{2} (\vr{1})_{\vr{N}\times\vr{N}}       
+                \vr{K} \deq \sigma^{2}_\vr{f} k(\vr{X}^{\intercal},\vr{X}^{\intercal}) + \sigma_{\vr{e}}^{2} (\vr{I})_{\vr{N}\times\vr{N}}       
             \end{equation}
-        The $M+2$ hyperparameters constituting $\Lambda, \sigma_{\vr{f}}$ and $\sigma_{\vr{e}}$ are simultaneously optimized for maximium marginal likelihood $\mathsf{p}\lbrack y \vert \vr{X}^{\intercal}\rbrack$, using the GPy software library.
+        The $M+2$ hyperparameters constituting $\Lambda, \sigma_{\vr{f}}$ and $\sigma_{\vr{e}}$ are simultaneously optimized for maximium marginal likelihood $\mathsf{p}\lbrack y \vert \vr{X}^{\intercal}\rbrack$, using the GPy software library (refeence).
 
         \subsection{Global Sensitivity Analysis} \label{sub:Method:GSA}
             Imagine a sample datum \(\vr{u}\) is drawn from a standardized normal test distribution
             \begin{equation} \label{eq:Method:GSA:uDist}
-                \vr{u} \sim \gauss{(\vr{0})_{\vr{M}}}{(\vr{1})_{\vr{M}\times\vr{M}}}
+                \vr{u} \sim \gauss{(\vr{0})_{\vr{M}}}{(\vr{I})_{\vr{M}\times\vr{M}}}
             \end{equation}
             The datum basis is rotated to
             \begin{equation} \label{eq:Method:GSA:Rotation}
@@ -269,26 +280,26 @@
                 f_{\vr{m}}((\vr{u})_{\vr{m}}) = \tilde{\vr{f}}^{\intercal} \; 
 				\frac 
 					{p\!\left((\vr{u})_{\vr{m}} ; (\vr{T})_{\vr{N}\times\vr{m}}^{\intercal}, (\Sigma)_{\vr{m}\times\vr{m}}\right)}
-					{p\!\left((\vr{u})_{\vr{m}} ; (\vr{0})_{\vr{m}},(\vr{1})_{\vr{m}\times\vr{m}}\right)}
+					{p\!\left((\vr{u})_{\vr{m}} ; (\vr{0})_{\vr{m}},(\vr{I})_{\vr{m}\times\vr{m}}\right)}
             \end{equation}
             where $\tilde{\vr{f}}$ is the Hadamard (element-wise) product $\circ$ of two vectors
             \begin{equation} \label{eq:Method:GSA:gDef}
                 \tilde{\vr{f}} \deq
-                (2 \pi)^{M/2} \modulus{\Lambda} p\!\left(\vr{0};\vr{X}^{\intercal} , \Lambda^{2} + \vr{1}\right)
+                (2 \pi)^{M/2} \modulus{\Lambda} p\!\left(\vr{0};\vr{X}^{\intercal} , \Lambda^{2} + \vr{I}\right)
                 \circ\left(\sigma^{2}_\vr{f} \vr{K}^{-1} y(\vr{X}^{\intercal})\right) 
             \end{equation}
             and
             \begin{align} \label{eq:Method:GSA:TSigmaDef}
                 \vr{T} &\deq 
-                    \vr{X} \left(\Lambda^{2} + \vr{1}\right)^{-1} \Theta^{\intercal} \\
+                    \vr{X} \left(\Lambda^{2} + \vr{I}\right)^{-1} \Theta^{\intercal} \\
                 \Sigma &\deq 
-                    \Theta \left(\Lambda^{-2} + \vr{1}\right)^{-1} \Theta^{\intercal}
+                    \Theta \left(\Lambda^{-2} + \vr{I}\right)^{-1} \Theta^{\intercal}
             \end{align}
             According to these formulae, the unconditional surrogate response is
             \begin{equation} \label{eq:Method:GSA:f_0}
                 f_{\vr{0}} = \ev{\bar{f}(\vr{x})} = \tilde{\vr{f}}^{\intercal} (\vr{1})_{\vr{N}}
             \end{equation}
-            which does not depend on $\Theta$ of course. Standardization of $y(\vr{X}^{\intercal})$ instills an expectation of precisely zero here if $\vr{x}_{n} \sim \gauss{(\vr{0})_{\vr{M}}}{(\vr{1})_{\vr{M}\times\vr{M}}}$ (which is often not exactly true).
+            which does not depend on $\Theta$ of course. Standardization of $y(\vr{X}^{\intercal})$ instills an expectation of precisely zero here if $\vr{x}_{n} \sim \gauss{(\vr{0})_{\vr{M}}}{(\vr{I})_{\vr{M}\times\vr{M}}}$ (which is often not exactly true).
 
             Conditional variances may now be calculated as
             \begin{equation} \label{eq:Method:GSA:DmDef}
@@ -316,7 +327,7 @@
             \end{equation}
             and
             \begin{equation} \label{eq:Method:GSA:PhiDef}
-                \Psi \deq \Theta \left(\Lambda^{-2}+\vr{1}\right)^{-1}\left(2\Lambda^{-2}+\vr{1}\right) 
+                \Psi \deq \Theta \left(\Lambda^{-2}+\vr{I}\right)^{-1}\left(2\Lambda^{-2}+\vr{I}\right) 
                 \Theta^{\intercal}
             \end{equation}
             The proportion of response variance ascribable to the first $m$ basis directions of $\vr{u}$ is given by the Sobol' index
@@ -334,7 +345,7 @@
             \begin{equation} \label{eq:Method:BO:Rotation}
                 \vr{u} \deq \Theta \vr{x}
             \end{equation}
-            relating sampling distribution $\vr{u} \sim \gauss{(\vr{0})_{\vr{M}}}{(\vr{1})_{\vr{M}\times\vr{M}}}$ to the input of the surrogate response $\bar{f}(\vr{x})$. This rotation will now be determined by maximizing the relevance -- as measured by Sobol' index -- of each $\vr{u}$-direction in turn. This means optimizing $\Theta$ in \cref{eq:Method:BO:Rotation} row by row from top to bottom. 
+            relating sampling distribution $\vr{u} \sim \gauss{(\vr{0})_{\vr{M}}}{(\vr{I})_{\vr{M}\times\vr{M}}}$ to the input of the surrogate response $\bar{f}(\vr{x})$. This rotation will now be determined by maximizing the relevance -- as measured by Sobol' index -- of each $\vr{u}$-direction in turn. This means optimizing $\Theta$ in \cref{eq:Method:BO:Rotation} row by row from top to bottom. 
             
             Row orthonormality leaves just $(M-m-1)$ elements free in row $m$, which we encode as
             \begin{equation} \label{eq:Method:BO:XiDef}
@@ -343,7 +354,7 @@
             where \(\Xi\) is orthogonal, and identical on the $(m-1)$ rows already optimized
             \begin{equation} \label{eq:Method:BO:XiConstraints}
                 \begin{aligned}
-                    (\Xi)_{\vr{m}\setminus\set{m}\times\vr{M}} &= \vr{1}_{\vr{m}\setminus\set{m}\times\vr{M}} \\
+                    (\Xi)_{\vr{m}\setminus\set{m}\times\vr{M}} &= \vr{I}_{\vr{m}\setminus\set{m}\times\vr{M}} \\
                     (\Xi)_{m\times\vr{m}\setminus\set{m}} &= (\vr{0})_{1\times\vr{m}\setminus\set{m}} \\
                     (\Xi)_{m\times m} &= \left(1 - \sum_{k=m+1}^{M} (\Xi)_{m\times k}^{2} \right)^{1/2}
                 \end{aligned}            
@@ -364,7 +375,7 @@
             \begin{equation} \label{eq:Method:BO:incorpUpadate}
                 \begin{gathered}
                     \tilde{\Theta} = \vr{Q}^{\intercal} \  \text{where } \Theta^{\intercal} = \vr{Q}\vr{R} \text{ is the QR factorization of the update} \\
-                    (\Xi)_{\vr{m}\times\vr{M}} = \vr{1}_{\vr{m}\times\vr{M}}
+                    (\Xi)_{\vr{m}\times\vr{M}} = \vr{I}_{\vr{m}\times\vr{M}}
                 \end{gathered}
             \end{equation}        
             ready to optimize row $m+1$. 
@@ -372,12 +383,14 @@
             The later rows could be left unoptimized, though they are successively cheaper to obtain.
     
         \subsection{Summary} \label{sub:Method:Summary}
-            The main loop of the optimizations reported in the next Section is:
+            The main loop of the algorithm is described i:
+            
             \begin{algorithm}
+            \caption{Summary of the basis optimization algorithm.}
                 \begin{algorithmic}[1]
                     \REPEAT
                         \STATE Fit GP surrogate to $y(\vr{X}^{\intercal})$, determining $\bar{f}(\vr{x})$ according to \cref{sub:Method:GP}
-                        \STATE Set $\tilde{\Theta} \leftarrow \Theta \leftarrow \Theta_{\Pi} \leftarrow \vr{1}$
+                        \STATE Set $\tilde{\Theta} \leftarrow \Theta \leftarrow \Theta_{\Pi} \leftarrow \vr{I}$
                         \FOR{$m=1$ \TO $M$}
                             \STATE According to \cref{sub:Method:GSA}, optimize \label{bum}
                             $$(\Xi)_{m\times\vr{M}\setminus\vr{m}} \leftarrow \argmax_{(\Xi)_{m\times\vr{M}\setminus\vr{m}}} D_{\vr{m}}((\Theta)_{\vr{m}\times\vr{M}})$$
@@ -386,18 +399,20 @@
                         \ENDFOR
                         \STATE Update the input basis to $\vr{X}^{\intercal} \leftarrow \Theta \vr{X}^{\intercal}$
                         \STATE Update the overall rotation to $\Theta_{\Pi} \leftarrow \Theta \Theta_{\Pi}$
-                    \UNTIL{$\Theta \approx \vr{1}$}
+                    \UNTIL{$\Theta \approx \vr{I}$}
                 \end{algorithmic}
             \end{algorithm}
 
-            The optimization in Step \ref{bum} is prone to fall into local optima, especially in the first iteration or two of the outermost loop. 
-            It is recommended that these early iterations explore the behaviour of \M{(\Xi)_{m\times\vr{M}\setminus\vr{m}}} (by grid or randomized search) before attempting to exploit it (by gradient descent).
+            During testing the optimization in Step \ref{bum} is found to be prone to converge to local optima, especially in the first iteration or two of the outermost loop. An approach was therefore developed that the early iterations explore the behaviour of \M{(\Xi)_{m\times\vr{M}\setminus\vr{m}}} by grid or randomized search, before attempting exploitation by gradient descent).
 
             As the input basis is updated at each step, \M{\vr{X} = \vr{U}} ultimately. 
             The key output of the algorithm is the overall rotation \M{\Theta_{\Pi}} of the original basis for \vr{x} to the optimal basis for \vr{u}.
             
     \section{Results} \label{sec:Results}
-        The algorithm described in \cref{sub:Method:Summary} has been tested on a suite of test functions, using $N \in {100, 200, 400, 800, 1600}$ data of $M=5$ input dimensions. All quoted results are the mean over two folds (each with $N$ training data and $N$ test data).
+        In this section, the method described in \cref{sub:Method:Summary} is applied to a series of test functions to evaluate its performance. , using $N \in {100, 200, 400, 800, 1600}$ data of $M=5$ input dimensions. All quoted results are the mean over two folds (each with $N$ training data and $N$ test data).
+        
+        
+         using $N \in {100, 200, 400, 800, 1600}$ data of $M=5$ input dimensions. All quoted results are the mean over two folds (each with $N$ training data and $N$ test data).
         In each case an \M{N \times M} design matrix \vr{X} is sampled from a standard normal distribution. 
         The input to the test function \M{f\colon \lbrack x_-, x_+ \rbrack^{M} \to \st{R}} is generally constructed as
         \begin{equation} \label{def:Xhat}
@@ -514,7 +529,7 @@
 %            \csvautotabular{results/sobol_g.random.5/rom.optimized.formatted.S.csv}
 
 
-     \section{Discussion} \label{sec:Discussion}
+     \section{Conclusion} \label{sec:Conclusion}
 
 
         %% The Appendices part is started with the command \appendix;

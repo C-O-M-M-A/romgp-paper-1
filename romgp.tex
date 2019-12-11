@@ -144,18 +144,17 @@
 
     %% main text
     \section{Introduction} \label{sec:Intro}
-        The simulation of a large range of engineering systems requires the application of complex computational models. The use of these models often requires considerable computational effort, and can be prohibitive when attempting to use the underlying model as part of a system optimization. As these models, ultimately, provide the response of some noisy scalar quantity $y(\vr{x})$ to its \M{M}-dimensional input $\vr{x}$; it would therefore be extremely desirable to reduce \M{M} as far as possible using a surrogate or emulator without materially impacting the fidelity of the prediction of \M{y} \cite{Sacks.etal1989}. 
+        The simulation of a large range of engineering systems requires the application of complex computational models. The use of these models often requires considerable computational effort, and can be prohibitive when attempting to use the underlying model as part of a system optimization. This is commonly mitigated by emulating the complex model response $y(\vr{x})$ to its \M{M}-dimensional input $\vr{x}$ with a surrogate. 
         
-        One popular method with which to construct such surrogates models is with Gaussian Processes (GPs) \cite{Rasmussen.Williams2005}, given that they are flexible, efficient, non-parametric and analytically tractable (references). Other surrogate methods include Polynomial Chaos Expansions \cite{Ghanem.Spanos1997,Xiu.Karniadakis2002,Xiu2010}, low-rank tensor approximations \cite{Chevreuil.etal2015,Konakli.Sudret2016}, and support vector regression \cite{Cortes.Vapnik1995}
+        A popular class of surrogate is Gaussian Processes (GPs) \cite{Sacks.etal1989, Rasmussen.Williams2005}which are flexible, efficient, non-parametric and analytically tractable (references). Other surrogate methods include Polynomial Chaos Expansions \cite{Ghanem.Spanos1997,Xiu.Karniadakis2002,Xiu2010}, low-rank tensor approximations \cite{Chevreuil.etal2015,Konakli.Sudret2016}, and support vector regression \cite{Cortes.Vapnik1995}.
         These, however, tend to lack the combination of characteristics just mentioned, which make GPs ideal for our purposes.
         
-        The use of all techniques for the development of surrogate models requires an exponentially growing number of output results $y(\vr{x})$ throughout the input space as \M{M} increases: known as the curse of dimensionality. There is therefore a significant driver for methods with which to reduce the dimensionality of the input space, and so a more efficient means of generating the emulator. One way of selecting the directions of most influence is through the application of Global Sensitivity Analysis, however where these directions are not aligned with the input basis this resulting dimensionality reduction is sub-optimal (references).
+        The development of surrogate models usually requires an exponentially growing number of output results $y(\vr{x})$ throughout the input space as \M{M} increases: known as the curse of dimensionality. There is therefore a significant driver for methods with which to reduce the dimensionality of the input space, and so a more efficient means of generating the emulator. One way of selecting the directions of most influence is through the application of Global Sensitivity Analysis, however where these directions are not aligned with the input basis this resulting dimensionality reduction is sub-optimal (references).
         
-        As such a number of approaches to obtaining the optimal dimensionality reduction have been developed, which can broadly be catagorized through their use of different sensitivity measures. For example, \cite{Constantine.etal2014} proposed a means of calculating this optimal reduced dimensional space, the Active Subspace, through a derivative sensitivity measure. This was found to work very effectively for a broad range of problems but requires the information of the derivative which is typically not available for very large or complex systems. \cite{Liu.Guillas2017} suggested using gradient-based kernel reduction of a GP surrogate.
-        
+        As such a number of approaches to obtaining the optimal dimensionality reduction have been developed, which can broadly be catagorized through their use of different sensitivity measures. For example, \cite{Constantine.etal2014} proposed a means of calculating this optimal reduced dimensional space, the Active Subspace, through a derivative sensitivity measure. This was found to work very effectively for a broad range of problems but requires the information of the derivative which is typically not available for very large or complex systems. Liu and Guillas \cite{Liu.Guillas2017} suggested using gradient-based kernel reduction of a GP surrogate.
         Minimum Average Variance Estimation (MAVE), such as that  proposed by Xia et al \cite{Xia.etal2002}, on the other hand effectively uses a variance-based sensitivity (statistical independence)
          
-        A key variance-based sensitivity measure are the Sobol' indices \cite{Sobol2001}, which is one of the most widely used approaches for GSA. With the increased popularity of using GPs as surrogate models, the main disadvantage to the Sobol' method was solved \cite{Oakley.OHagan2004,Jin.etal2004,Marrel.etal2009}. The use of GPs provided an alternative method to estimating multidimensional integrals using Monte Carlo schemes, which required 10,000 datapoints to reach 10\% precision \cite{Lamoureux2014}. GPs are an incredibly useful surrogate modelling technique for sensitivity analysis as they have the great advantage of being analytically tractable and so can calculate the sensitivity indices given a training set of model evaluations.  The derivation enabling the use of GP regression for analytical evaluation of variance-based sensitivity indices were first introduced by Jin et al. \cite{Jin.etal2004} who applied the Sobol' index formula directly to the GP predictors. Before Oakley and O'Hagan \cite{Oakley.OHagan2004} used the global stochastic model of a GP, providing the calculations to produce random variables as a new sensitivity measures. Oakley and O'Hagan's \cite{Oakley.OHagan2004} model allows the sensitivity indices accuracy to be analysed due to the distribution of the variables. Marrel et al. \cite{Marrel.etal2009} extended this comparing them and building on the work from Oakley and O'Hagan \cite{Oakley.OHagan2004} leading to a novel algorithm which builds confidence intervals for the Sobol' indices. Marrel et al. \cite{Marrel.etal2009} tested both methods on toy functions providing results that show very accurate sensitivity indices and satisfactory confidence intervals from the second method. However, when the approach was illustrated on real data to provide a sensitivity analysis on radionuclide groundwater transport, it was found that the confidence intervals were inaccurate for very low indices due to overestimation of the lowest Sobol' indices.
+        A key variance-based sensitivity measure are the Sobol' indices \cite{Sobol2001}, which is one of the most widely used approaches for GSA. With the increased popularity of using GPs as surrogate models, the main disadvantage to the Sobol' method was solved \cite{Oakley.OHagan2004,Jin.etal2004,Marrel.etal2009}. The use of GPs provided an alternative method to estimating multidimensional integrals using Monte Carlo schemes, which required 10,000 datapoints to reach 10\% precision \cite{Lamoureux.etal2014}. GPs enable semi-analytic evaluation of Sobol' indices, introduced by Jin et al. \cite{Jin.etal2004}. Before Oakley and O'Hagan \cite{Oakley.OHagan2004} used the global stochastic model of a GP, providing the calculations to produce random variables as a new sensitivity measures. Oakley and O'Hagan's \cite{Oakley.OHagan2004} model allows the sensitivity indices accuracy to be analysed due to the distribution of the variables. Marrel et al. \cite{Marrel.etal2009} extended this comparing them and building on the work from Oakley and O'Hagan \cite{Oakley.OHagan2004} leading to a novel algorithm which builds confidence intervals for the Sobol' indices. Marrel et al. \cite{Marrel.etal2009} tested both methods on toy functions providing results that show very accurate sensitivity indices and satisfactory confidence intervals from the second method. However, when the approach was illustrated on real data to provide a sensitivity analysis on radionuclide groundwater transport, it was found that the confidence intervals were inaccurate for very low indices due to overestimation of the lowest Sobol' indices.
 
         The purpose of this work is to present a Global Sensitivity Analysis based model order reduction approach, which uses 
         \begin{itemize}
@@ -168,7 +167,7 @@
 
     \section{Review of Gaussian Processes and Global Sensitivity Analysis} \label{sec:TheoryReview}
         \subsection{Gaussian Process Surrogate}
-            In order to avoid the difficulty and expense in obtaining and analyzing response data from a computationally heavy model we adopt a Gaussian Process (GP) as a surrogate or emulator. The response $y(\vr{x})$ to arbitrarily fixed input is modelled as the sum $f(\vr{x})+e(\vr{x})$ of two Gaussian random variables encapsulating coherent signal and incoherent noise. The latter is characterized by a zero-mean distribution that is independent of the input:
+            In order to avoid the difficulty and expense in obtaining and analyzing response data from a computationally heavy model we adopt a Gaussian Process (GP) surrogate or emulator. The response $y(\vr{x})$ to arbitrarily fixed input is modelled as the sum $f(\vr{x})+e(\vr{x})$ of two Gaussian random variables encapsulating coherent signal and incoherent noise. The latter is characterized by a zero-mean distribution that is independent of the input:
             \begin{equation*}
                 e(\vr{x}) \sim \gauss{0}{\sigma^{2}_\vr{e}}
             \end{equation*}
@@ -178,7 +177,7 @@
                 \partial_{\vr{x}\vr{x}} \log k(\vr{x},\vr{x}) \deqr -\Theta^{\intercal}\Lambda^{-2}\Theta
             \end{equation*}
 
-            When $\modulus{\vr{x}-\vr{x}_{n}}$ is large the kernel value is miniscule in any any relevant direction. The kernel details are therefore largely irrelevant to the response \emph{any} time $\modulus{\vr{x}-\vr{x}_{n}}$ is large, advocating (if not justifying)\todo{which is it?} the Taylor approximation\todo{this paragraph basically needs to say when x is big y is small so we can use this expansion, and if this is common in the literature (which I imagine it is) we include a suitable reference}
+            When $\modulus{\vr{x}-\vr{x}_{n}}$ is large the kernel value is miniscule in any any relevant direction. The kernel details are therefore largely irrelevant to the response \emph{any} time $\modulus{\vr{x}-\vr{x}_{n}}$ is large, advocating (if not justifying) the Taylor approximation
             \begin{equation*}
                 k(\vr{x}_{n},\vr{x}) = 
                 \exp \left(-\frac
@@ -190,7 +189,7 @@
             Modes of response oscillating rapidly with $\vr{x}$ are interpreted as noise by the GP, as the kernel smoothes $y$ into $f$. Such regularization is often, but not always, desirable, to avoid wildly unreliable interpolation of an overfit regression.
 
         \subsection{Kernel Optimization}
-            In order to deal with the curse of dimensionality we propose to find orthogonal rotation matrix $\Theta$ and diagonal length-scale matrix $\Lambda$ which best fit observed responses $y(\vr{X}^{\intercal})$. The largest lengthscales in $\Lambda$ mark the least relevant directions that can be ignored. However, the best fit must optimize $M(M+1)/2+2$ hyperparameters simultaneously to determine $\Theta, \Lambda, \sigma^{2}_\vr{f}$ and $\sigma^{2}_\vr{e}$. As a direct optimization of such a large problem may result in obtaining only local optima. Exploratory grid search is astronomically expensive $O(\exp(M(M+1)/2)$, likewise any random sampling which is not hopelessly sparse. Perhaps for these reasons\todo{the previous two sentences need to be put after the descript of what the literature do, as a contrast to what we're going to do}, $\Theta$ has always been fixed as identity in the literature. The lengthscales comprising $\Lambda$ are also usually identical, furnishing a radial basis function (RBF) kernel \cite{Sacks.etal1989}. The few studies where $\Lambda$ is not identical speak of an automatic relevance determination (ARD) kernel, with model order reduction in mind \cite{Wipf.Nagarajan2007, Neal1996}.
+            In order to deal with the curse of dimensionality we propose to find orthogonal rotation matrix $\Theta$ and diagonal length-scale matrix $\Lambda$ which best fit observed responses $y(\vr{X}^{\intercal})$. The largest lengthscales in $\Lambda$ mark the least relevant directions that can be ignored. However, the best fit must optimize $M(M+1)/2+2$ hyperparameters simultaneously to determine $\Theta, \Lambda, \sigma^{2}_\vr{f}$ and $\sigma^{2}_\vr{e}$. As a direct optimization of such a large problem may result in obtaining only local optima. Exploratory grid search is astronomically expensive $O(\exp(M(M+1)/2)$, likewise any random sampling which is not hopelessly sparse. Perhaps for these reasons, $\Theta$ has always been fixed as identity in the literature. The lengthscales comprising $\Lambda$ are also usually identical, furnishing a radial basis function (RBF) kernel \cite{Sacks.etal1989}. The few studies where $\Lambda$ is not identical speak of an automatic relevance determination (ARD) kernel, with model order reduction in mind \cite{Wipf.Nagarajan2007, Neal1996}.
 
         \subsection{Global Sensitivity Analysis}
             This paper proposes to achieve kernel optimization indirectly, via global sensitivity analysis (GSA).
@@ -202,7 +201,7 @@
             \begin{equation*}
                 S_{\vr{m}}((\Theta)_{\vr{m}\times\vr{M}}) \deq \var[\vr{x}]{\ev[\vr{x}]{\bar{f}(\vr{x}) \vert (\Theta \vr{x})_{\vr{m}}}} / \var[\vr{x}]{\bar{f}(\vr{x})} \leq 1
             \end{equation*}
-            to subspaces $(\Theta \vr{x})_{\vr{m}}$ of dimension $m\leq M$. These may be calculated analytically for the exponential quadratic kernel used here. To cure to the curse of dimensionality is to find $(\Theta)_{\vr{m}\times\vr{M}}$ such that $S_{\vr{m}} \approx 1$ for $m\ll M$. The rotation sub-matrix $(\Theta)_{\vr{m}\times\vr{M}}$ has a manageable number of elements if $m$ is small. This paper takes the most economical approach,maximizing $S_{\vr{m}}$ for $m=1,\ldots,M$ in turn, to find the most relevant direction, then the second most relevant, and so on. 
+            to subspaces $(\Theta \vr{x})_{\vr{m}}$ of dimension $m\leq M$. These may be calculated analytically for the exponential quadratic kernel used here. To cure to the curse of dimensionality is to find $(\Theta)_{\vr{m}\times\vr{M}}$ such that $S_{\vr{m}} \approx 1$ for $m\ll M$. The rotation sub-matrix $(\Theta)_{\vr{m}\times\vr{M}}$ has a manageable number of elements if $m$ is small. This paper takes the most economical approach, maximizing $S_{\vr{m}}$ for $m=1,\ldots,M$ in turn, to find the most relevant direction, then the second most relevant, and so on. 
 
 
     \section{Methodology} \label{sec:Method}
@@ -412,10 +411,10 @@
             The key output of the algorithm is the overall rotation \M{\Theta_{\Pi}} of the original basis for \vr{x} to the optimal basis for \vr{u}.
                        
     \section{Results} \label{sec:Results}
-        In this section, the method described in \cref{sub:Method:Summary} is applied to a series of test functions to evaluate its performance, using $N \in {100, 200, 400, 800, 1600}$ data of $M=5$ input dimensions. All inputs and outputs are standardized to mean 0, standard deviation 1 before folding.
+        In this section, the method described in \cref{sub:Method:Summary} is applied to a series of test functions to evaluate its performance. Each function takes $N \in {100, 200, 400, 800, 1600}$ data from a latin hypercube of $M=5$ input dimensions. All inputs and outputs are standardized to mean 0, standard deviation 1 before folding.
         All results are calculated as the mean over two folds (each with $N$ training data and $N$ test data, so predictions are rigorously cross-validated. 
 
-        In each case an \M{N \times M} design matrix \vr{X} is sampled from a standard normal distribution. 
+        In each case an \M{N \times M} design matrix \vr{X} is sampled from a standard normal distribution (latin hypercube). 
         The input to the test function \M{f\colon \lbrack x_-, x_+ \rbrack^{M} \to \st{R}} is generally constructed as
         \begin{equation} \label{def:Xhat}
             \vr{\hat{X}}^{\intercal} = (x_+ - x_-) c(\Phi \vr{X}^{\intercal}) + x_-(\vr{1})_{\vr{M} \times \vr{N}}
@@ -432,8 +431,9 @@
         \begin{equation}
             \Theta_{\vr{R}} \cong \Theta_{\vr{1}} \Phi_{\vr{R}}
         \end{equation}
-        However, this is congruence, not equality.
-        For each test function, the intial GP fit is assessed by test statistics from independent data (from the other fold), together with errors in the calculated Sobol' indices. The latter are important as they at the heart of subsequent calculations. The input basis is then optimized, calculating $\Theta_{\vr{1}}$.
+        However, this is congruence, not equality: different rotations might locate (excactly or nearly exactly) the same active subspace.
+
+        For each function, the intial GP fit is assessed by test statistics from independent data (from the other fold), together with errors in the calculated Sobol' indices. The latter are important as they at the heart of subsequent calculations. The input basis is then optimized, calculating $\Theta_{\vr{1}}$.
         A reduced dimensionality \M{\underline{M}} for the optimized basis is determined as 
         \begin{equation} \label{eq:Results:Mbar}
             \min \setbuilder{\underline{M} \leq M}{S_{\underline{\vr{M}}} \geq 0.90}
@@ -455,7 +455,7 @@
             \end{equation}
             \begin{gather*}
                 \lbrack x_-, x_+ \rbrack \deq \lbrack -\pi, +\pi \rbrack \\
-                S_{\vr{1}} \deq S_{(1)} = 1
+                S_{\vr{1}} = 1
             \end{gather*}
             Fitting an initial GP recovers the exact Sobol' indices to within an accuracy of 0.005 (precision actually decreasing with the number of data). Optimizing the input basis improves this to $10^{-8}$, which can only be due to repeating GP regression as 4 iterations were run to optimize $\Theta$, even though convergence is immediate. The predictive improvement is shown in \cref{tab:Results:Sin:testA}.
 
@@ -467,10 +467,10 @@
                 {results/sin.1.rom.5/amalgamated.test_stats.csv}
                 {}
                 {\csvcoli & \csvcolii & \csvcoliii & \csvcoliv & \csvcolv & \csvcolvi & \csvcolvii & \csvcolviii}                
-                \caption{\label{tab:Results:Sin:testA} Predictive improvement of initial GPs (left sub-columns) by reducing dimensionality (right sub-columns), for the sine function. Three measures are shown: the Root Mean Square Error, the GPs predictive standard deviation $\sigma_{f(\textbf{x})}$, and the percentage of observations outside $\pm 2 \sigma_{f(\textbf{x})}$.}
+                \caption{\label{tab:Results:Sin:testA} Predictive performance of initial GPs (left sub-columns) after reducing dimensionality (right sub-columns), for the sine function. Three measures are shown: the Root Mean Square Error, the GPs' predictive standard deviation $\sigma_{f(\textbf{x})}$, and the percentage of observations outside $\pm 2 \sigma_{f(\textbf{x})}$.}
             \end{table}
 
-            Applying a random rotation \M{\Phi_{\vr{R}}}, the exact Sobol' indices are recovered to within $10^{-8}$ after 3 iterations. The predictive improvement is shown in \cref{tab:Results:Sin:tab:Results:Sin:testB} , the 1D active subspace measures are in \cref{tab:Results:Sin:Theta}.
+            Applying a random rotation \M{\Phi_{\vr{R}}}, the exact Sobol' indices are recovered to within $10^{-8}$ after 3 iterations. The predictive performance is shown in \cref{tab:Results:Sin:testB} , the 1D active subspace measures in \cref{tab:Results:Sin:Theta}.
 
             \begin{table}[H]
                 \centering
@@ -480,7 +480,7 @@
                 {results/sin.1.random.5/amalgamated.test_stats.csv}
                 {}
                 {\csvcoli & \csvcolii & \csvcoliii & \csvcoliv & \csvcolv & \csvcolvi & \csvcolvii & \csvcolviii}                
-                \caption{\label{tab:Results:Sin:testB} Predictive improvement of initial GPs (left sub-columns) by reducing dimensionality (right sub-columns), for the sine function with randomly rotated inputs. Three measures are shown: the Root Mean Square Error, the GPs predictive standard deviation $\sigma_{f(\textbf{x})}$, and the percentage of observations outside $\pm 2 \sigma_{f(\textbf{x})}$.}
+                \caption{\label{tab:Results:Sin:testB} Predictive performance of initial GPs (left sub-columns) after reducing dimensionality (right sub-columns), for the sine function with randomly rotated inputs. Three measures are shown: the Root Mean Square Error, the GPs' predictive standard deviation $\sigma_{f(\textbf{x})}$, and the percentage of observations outside $\pm 2 \sigma_{f(\textbf{x})}$.}
             \end{table}
 
             \begin{table}[H]
@@ -501,7 +501,7 @@
                 a = 2.0 \QT{;} b = 0 \\
                 S_{\vr{1}} = 0.5 \QT{;}S_{\vr{2}} = 1
             \end{gather*}
-            Fitting an initial GP recovers the exact Sobol' indices to within an accuracy of 0.03, which does not improve on optimizing the input basis. The predictive improvement is shown in \cref{tab:Results:Decoup:testA}.
+            Fitting an initial GP recovers the exact Sobol' indices to within an accuracy of 0.03, which is barely changed on optimizing the input basis. The predictive performance is shown in \cref{tab:Results:Decoup:testA}.
 
             \begin{table}[H]
                 \centering
@@ -511,10 +511,10 @@
                 {results/sin.2.rom.5/amalgamated.test_stats.csv}
                 {}
                 {\csvcoli & \csvcolii & \csvcoliii & \csvcoliv & \csvcolv & \csvcolvi & \csvcolvii & \csvcolviii}                
-                \caption{\label{tab:Results:Decoup:testA} Predictive improvement of initial GPs (left sub-columns) by reducing dimensionality (right sub-columns), for the decoupled Ishigami function. Three measures are shown: the Root Mean Square Error, the GPs predictive standard deviation $\sigma_{f(\textbf{x})}$, and the percentage of observations outside $\pm 2 \sigma_{f(\textbf{x})}$.}
+                \caption{\label{tab:Results:Decoup:testA} Predictive performance of initial GPs (left sub-columns) after reducing dimensionality (right sub-columns), for the decoupled Ishigami function. Three measures are shown: the Root Mean Square Error, the GPs' predictive standard deviation $\sigma_{f(\textbf{x})}$, and the percentage of observations outside $\pm 2 \sigma_{f(\textbf{x})}$.}
             \end{table}
 
-            Applying a random rotation \M{\Phi_{\vr{R}}}, the exact Sobol' indices are recovered to within $10^{-8}$ after 3 iterations. The predictive improvement is shown in \cref{tab:Results:Decoup:testB} , the 1D active subspace measures are in \cref{tab:Results:Decoup:Theta}.
+            Applying a random rotation \M{\Phi_{\vr{R}}}, ????. The predictive performance is shown in \cref{tab:Results:Decoup:testB} , the 1D active subspace measures are in \cref{tab:Results:Decoup:Theta}.
             \begin{table}[H]
                 \centering
                 \csvreader[tabular=|r|r|r|r|r|r|r|r|, 
@@ -523,7 +523,7 @@
                 {results/sin.2.random.5/amalgamated.test_stats.csv}
                 {}
                 {\csvcoli & \csvcolii & \csvcoliii & \csvcoliv & \csvcolv & \csvcolvi & \csvcolvii & \csvcolviii}                
-                \caption{\label{tab:Results:Decoup:testB} Predictive improvement of initial GPs (left sub-columns) by reducing dimensionality (right sub-columns), for the decoupled Ishigami function with randomly rotated inputs. Three measures are shown: the Root Mean Square Error, the GPs predictive standard deviation $\sigma_{f(\textbf{x})}$, and the percentage of observations outside $\pm 2 \sigma_{f(\textbf{x})}$.}
+                \caption{\label{tab:Results:Decoup:testB} Predictive performance of initial GPs (left sub-columns) after reducing dimensionality (right sub-columns), for the decoupled Ishigami function with randomly rotated inputs. Three measures are shown: the Root Mean Square Error, the GPs' predictive standard deviation $\sigma_{f(\textbf{x})}$, and the percentage of observations outside $\pm 2 \sigma_{f(\textbf{x})}$.}
             \end{table}
 
             \begin{table}[H]
@@ -544,7 +544,7 @@
                 a = 7.0 \QT{;} b = 0.1 \\
                 S_{\vr{1}} = 0.3139 \QT{;}S_{\vr{2}} = 0.7563 \QT{;} S_{\vr{3}} = 1
             \end{gather*}
-            Fitting an initial GP recovers the exact Sobol' indices to within an accuracy of 0.03, which does not improve on optimizing the input basis. The predictive improvement is shown in \cref{tab:Results:ishigami:testA}.
+            Fitting an initial GP recovers the exact Sobol' indices to within an accuracy of 0.04 with $N=100$ training data, gradually improving to 0.002 with $N=1600$, which does not improve on optimizing the input basis. The predictive performance is shown in \cref{tab:Results:ishigami:testA}.
 
             \begin{table}[H]
                 \centering
@@ -554,7 +554,7 @@
                 {results/ishigami.rom.5/amalgamated.test_stats.csv}
                 {}
                 {\csvcoli & \csvcolii & \csvcoliii & \csvcoliv & \csvcolv & \csvcolvi & \csvcolvii & \csvcolviii}                
-                \caption{\label{tab:Results:ishigami:testA} Predictive improvement of initial GPs (left sub-columns) by reducing dimensionality (right sub-columns), for the Ishigami function. Three measures are shown: the Root Mean Square Error, the GPs predictive standard deviation $\sigma_{f(\textbf{x})}$, and the percentage of observations outside $\pm 2 \sigma_{f(\textbf{x})}$.}
+                \caption{\label{tab:Results:ishigami:testA} Predictive performance of initial GPs (left sub-columns) after reducing dimensionality (right sub-columns), for the Ishigami function. Three measures are shown: the Root Mean Square Error, the GPs' predictive standard deviation $\sigma_{f(\textbf{x})}$, and the percentage of observations outside $\pm 2 \sigma_{f(\textbf{x})}$.}
             \end{table}
 
             Applying a random rotation \M{\Phi_{\vr{R}}}, the exact Sobol' indices are recovered to within $10^{-8}$ after 3 iterations. The predictive improvement is shown in \cref{tab:Results:ishigami:testB} , the 1D active subspace measures are in \cref{tab:Results:ishigami:Theta}.
@@ -566,7 +566,7 @@
                 {results/ishigami.random.5/amalgamated.test_stats.csv}
                 {}
                 {\csvcoli & \csvcolii & \csvcoliii & \csvcoliv & \csvcolv & \csvcolvi & \csvcolvii & \csvcolviii}                
-                \caption{\label{tab:Results:ishigami:testB} Predictive improvement of initial GPs (left sub-columns) by reducing dimensionality (right sub-columns), for the Ishigami function with randomly rotated inputs. Three measures are shown: the Root Mean Square Error, the GPs predictive standard deviation $\sigma_{f(\textbf{x})}$, and the percentage of observations outside $\pm 2 \sigma_{f(\textbf{x})}$.}
+                \caption{\label{tab:Results:ishigami:testB} Predictive performance of initial GPs (left sub-columns) after reducing dimensionality (right sub-columns), for the Ishigami function with randomly rotated inputs. Three measures are shown: the Root Mean Square Error, the GPs' predictive standard deviation $\sigma_{f(\textbf{x})}$, and the percentage of observations outside $\pm 2 \sigma_{f(\textbf{x})}$.}
             \end{table}
 
             \begin{table}[H]
@@ -597,7 +597,7 @@
                 {results/sobol_g.rom.5/amalgamated.test_stats.csv}
                 {}
                 {\csvcoli & \csvcolii & \csvcoliii & \csvcoliv & \csvcolv & \csvcolvi & \csvcolvii & \csvcolviii}                
-                \caption{\label{tab:Results:sobol_g:testA} Predictive improvement of initial GPs (left sub-columns) by reducing dimensionality (right sub-columns), for the sobol' G function. Three measures are shown: the Root Mean Square Error, the GPs predictive standard deviation $\sigma_{f(\textbf{x})}$, and the percentage of observations outside $\pm 2 \sigma_{f(\textbf{x})}$.}
+                \caption{\label{tab:Results:sobol_g:testA} Predictive performance of initial GPs (left sub-columns) after reducing dimensionality (right sub-columns), for the sobol' G function. Three measures are shown: the Root Mean Square Error, the GPs' predictive standard deviation $\sigma_{f(\textbf{x})}$, and the percentage of observations outside $\pm 2 \sigma_{f(\textbf{x})}$.}
             \end{table}
 
             Applying a random rotation \M{\Phi_{\vr{R}}}, the exact Sobol' indices are recovered to within $10^{-8}$ after 3 iterations. The predictive improvement is shown in \cref{tab:Results:sobol_g:testB} , the 1D active subspace measures are in \cref{tab:Results:sobol_g:Theta}.
@@ -609,7 +609,7 @@
                 {results/sobol_g.random.5/amalgamated.test_stats.csv}
                 {}
                 {\csvcoli & \csvcolii & \csvcoliii & \csvcoliv & \csvcolv & \csvcolvi & \csvcolvii & \csvcolviii}                
-                \caption{\label{tab:Results:sobol_g:testB} Predictive improvement of initial GPs (left sub-columns) by reducing dimensionality (right sub-columns), for the sobol' G function with randomly rotated inputs. Three measures are shown: the Root Mean Square Error, the GPs predictive standard deviation $\sigma_{f(\textbf{x})}$, and the percentage of observations outside $\pm 2 \sigma_{f(\textbf{x})}$.}
+                \caption{\label{tab:Results:sobol_g:testB} Predictive performance of initial GPs (left sub-columns) after reducing dimensionality (right sub-columns), for the sobol' G function with randomly rotated inputs. Three measures are shown: the Root Mean Square Error, the GPs' predictive standard deviation $\sigma_{f(\textbf{x})}$, and the percentage of observations outside $\pm 2 \sigma_{f(\textbf{x})}$.}
             \end{table}
 
             \begin{table}[H]
@@ -622,7 +622,8 @@
                 \caption{\label{tab:Results:sobol_g:Theta} The active subspace measures $\Sigma_m(\vr{u^{\dag}})$ for the Sobol' G function, comparing optimization of unrotated and randomly rotated inputs.} 
             \end{table}
 
-     \section{Conclusion} \label{sec:Conclusion}
+    
+    \section{Conclusion} \label{sec:Conclusion}
 
 
         %% The Appendices part is started with the command \appendix;

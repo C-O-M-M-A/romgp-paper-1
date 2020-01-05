@@ -366,8 +366,8 @@
                 \frac{\partial}{\partial\,(\Xi)_{m\times k}} = \frac{\partial}{\partial\,(\Xi)_{m\times k}} - 
                 \frac{(\Xi)_{m \times k}}{(\Xi)_{m \times m}}\frac{\partial}{\partial\,(\Xi)_{m\times m}}
             \end{equation}
-            which should be exploited by the optimizer as a powerful repellant to orthonormality violations.
-            This work uses a BFGS optimizer, fed an analytic Jacobian.
+            which should be exploited by the optimizer as a powerful repellant to orthonormality violations. This work uses the BFGS method
+	    \todo{reference implementation here} with an analytic Jacobian.
 
             Given these constraints, row $m$ is optimally determined by
             \begin{equation} \label{eq:Method:BO:OptimalRow}
@@ -381,13 +381,12 @@
                 \end{gathered}
             \end{equation}        
             ready to optimize row $m+1$. 
-            Optimization followed by incorporation is performed for $m=1,\ldots, M-1$ in turn to entirely optimize $\Theta$.
-            The later rows could be left unoptimized, though they are successively cheaper to obtain.
+            Optimization followed by incorporation is performed for $m=1,\ldots, M-1$ in turn to entirely optimize $\Theta$. The later rows could be left unoptimized, though they are successively cheaper to obtain.
     
         \subsection{Summary} \label{sub:Method:Summary}
-            The main loop of the algorithm is described i:
+            The main loop of the algorithm is described in \label{algo:Optimization:Algorithm}:
             
-            \begin{algorithm}
+            \begin{algorithm}\label{algo:Optimization:Algorithm}
             \caption{Summary of the basis optimization algorithm.}
                 \begin{algorithmic}[1]
                     \REPEAT
@@ -405,17 +404,15 @@
                 \end{algorithmic}
             \end{algorithm}
 
-            During testing the optimization in Step \ref{bum} is found to be prone to converge to local optima, especially in the first iteration or two of the outermost loop. An approach was therefore developed that the early iterations explore the behaviour of \M{(\Xi)_{m\times\vr{M}\setminus\vr{m}}} by grid or randomized search, before attempting exploitation by gradient descent).
+            During testing the optimization in Step \ref{bum} is found to be prone to converge to local optima, especially in the first iteration or two of the outermost loop. An approach was therefore developed where early iterations explore the behaviour of \M{(\Xi)_{m\times\vr{M}\setminus\vr{m}}} by grid or randomized search, before attempting exploitation by gradient descent.
 
-            As the input basis is updated at each step, \M{\vr{X} = \vr{U}} ultimately. 
-            The key output of the algorithm is the overall rotation \M{\Theta_{\Pi}} of the original basis for \vr{x} to the optimal basis for \vr{u}.
+            As the input basis is updated at each step, \M{\vr{X} = \vr{U}} ultimately. The key output of the algorithm is the overall rotation \M{\Theta_{\Pi}} of the original basis for \vr{x} to the optimal basis for \vr{u}.
                        
     \section{Results} \label{sec:Results}
         In this section, the method described in \cref{sub:Method:Summary} is applied to a series of test functions to evaluate its performance. Each function takes $N \in {100, 200, 400, 800, 1600}$ data from a latin hypercube of $M=5$ input dimensions. All inputs and outputs are standardized to mean 0, standard deviation 1 before folding.
-        All results are calculated as the mean over two folds (each with $N$ training data and $N$ test data, so predictions are rigorously cross-validated. 
+        All results are calculated as the mean over two folds, each with $N$ training data and $N$ test data, so predictions are rigorously cross-validated. 
 
-        In each case an \M{N \times M} design matrix \vr{X} is sampled from a standard normal distribution (latin hypercube). 
-        The input to the test function \M{f\colon \lbrack x_-, x_+ \rbrack^{M} \to \st{R}} is generally constructed as
+        In each case an \M{N \times M} design matrix \vr{X} is sampled from a standard normal distribution (latin hypercube). The input to the test function \M{f\colon \lbrack x_-, x_+ \rbrack^{M} \to \st{R}} is generally constructed as
         \begin{equation} \label{def:Xhat}
             \vr{\hat{X}}^{\intercal} = (x_+ - x_-) c(\Phi \vr{X}^{\intercal}) + x_-(\vr{1})_{\vr{M} \times \vr{N}}
         \end{equation}
@@ -433,7 +430,7 @@
         \end{equation}
         However, this is congruence, not equality: different rotations might locate (excactly or nearly exactly) the same active subspace.
 
-        For each function, the intial GP fit is assessed by test statistics from independent data (from the other fold), together with errors in the calculated Sobol' indices. The latter are important as they at the heart of subsequent calculations. The input basis is then optimized, calculating $\Theta_{\vr{1}}$.
+        For each function, the intial GP fit is assessed by test statistics from independent data (from the other fold), together with errors in the calculated Sobol' indices; the latter are important as they at the heart of subsequent calculations. The input basis is then optimized, calculating $\Theta_{\vr{1}}$.
         A reduced dimensionality \M{\underline{M}} for the optimized basis is determined as 
         \begin{equation} \label{eq:Results:Mbar}
             \min \setbuilder{\underline{M} \leq M}{S_{\underline{\vr{M}}} \geq 0.90}
@@ -457,7 +454,7 @@
                 \lbrack x_-, x_+ \rbrack \deq \lbrack -\pi, +\pi \rbrack \\
                 S_{\vr{1}} = 1
             \end{gather*}
-            Fitting an initial GP recovers the exact Sobol' indices to within an accuracy of 0.005 (precision actually decreasing with the number of data). Optimizing the input basis improves this to $10^{-8}$, which can only be due to repeating GP regression as 4 iterations were run to optimize $\Theta$, even though convergence is immediate. The predictive improvement is shown in \cref{tab:Results:Sin:testA}.
+            Fitting an initial GP recovers the exact Sobol' indices to within an accuracy of 0.005 (precision actually decreasing with the number of data)\todo{why is this?}. Optimizing the input basis improves this to $10^{-8}$, which can only be due to repeating GP regression as 4 iterations were run to optimize $\Theta$, even though convergence is immediate\todo{why is this important?}. The predictive improvement is shown in \cref{tab:Results:Sin:testA}.
 
             \begin{table}[H]
                 \centering
@@ -470,7 +467,7 @@
                 \caption{\label{tab:Results:Sin:testA} Predictive performance of initial GPs (left sub-columns) after reducing dimensionality (right sub-columns), for the sine function. Three measures are shown: the Root Mean Square Error, the GPs' predictive standard deviation $\sigma_{f(\textbf{x})}$, and the percentage of observations outside $\pm 2 \sigma_{f(\textbf{x})}$.}
             \end{table}
 
-            Applying a random rotation \M{\Phi_{\vr{R}}}, the exact Sobol' indices are recovered to within $10^{-8}$ after 3 iterations. The predictive performance is shown in \cref{tab:Results:Sin:testB} , the 1D active subspace measures in \cref{tab:Results:Sin:Theta}.
+            Applying a random rotation \M{\Phi_{\vr{R}}}, the exact Sobol' indices are recovered to within $10^{-8}$ after 3 iterations. The predictive performance is shown in \cref{tab:Results:Sin:testB}, the 1D active subspace measures in \cref{tab:Results:Sin:Theta}\todo{what does this show me? You need to spell things out a little}.
 
             \begin{table}[H]
                 \centering
@@ -514,7 +511,7 @@
                 \caption{\label{tab:Results:Decoup:testA} Predictive performance of initial GPs (left sub-columns) after reducing dimensionality (right sub-columns), for the decoupled Ishigami function. Three measures are shown: the Root Mean Square Error, the GPs' predictive standard deviation $\sigma_{f(\textbf{x})}$, and the percentage of observations outside $\pm 2 \sigma_{f(\textbf{x})}$.}
             \end{table}
 
-            Applying a random rotation \M{\Phi_{\vr{R}}}, ????. The predictive performance is shown in \cref{tab:Results:Decoup:testB} , the 1D active subspace measures are in \cref{tab:Results:Decoup:Theta}.
+            Applying a random rotation \M{\Phi_{\vr{R}}}, ????\todo{update}. The predictive performance is shown in \cref{tab:Results:Decoup:testB} , the 1D active subspace measures are in \cref{tab:Results:Decoup:Theta}.\todo{What should I see here? Tell me what the important things are, even if they seem obvious to you}
             \begin{table}[H]
                 \centering
                 \csvreader[tabular=|r|r|r|r|r|r|r|r|, 

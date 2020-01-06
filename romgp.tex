@@ -411,7 +411,7 @@
             The key output of the algorithm is the overall rotation \M{\Theta_{\Pi}} of the original basis for \vr{x} to the optimal basis for \vr{u}.
                        
     \section{Results} \label{sec:Results}
-        In this section, the method described in \cref{sub:Method:Summary} is applied to a series of test functions to evaluate its performance. Each function takes $N \in {100, 200, 400, 800, 1600}$ data from a latin hypercube of $M=5$ input dimensions. All inputs and outputs are standardized to mean 0, standard deviation 1 before folding.
+        In this section, the method described in \cref{sub:Method:Summary} is applied to a series of test functions to evaluate its performance. Each function takes $N \in \set{100, 200, 400, 800, 1600}$ data from a latin hypercube of $M=5$ input dimensions. Random noise $\epsilon(\vr{x}) \sim \mathsf{N}(0,\sigma_{\epsilon}^{2})$ is applied to the output, for $\sigma_{\epsilon} \in \set{10\%, 5\%, 1\%}$. All inputs and outputs are then standardized to mean 0, standard deviation 1 before folding.
         All results are calculated as the mean over two folds (each with $N$ training data and $N$ test data, so predictions are rigorously cross-validated. 
 
         In each case an \M{N \times M} design matrix \vr{X} is sampled from a standard normal distribution (latin hypercube). 
@@ -461,25 +461,47 @@
 
             \begin{table}[H]
                 \centering
-                \csvreader[tabular=|r|r|r|r|r|r|r|r|, 
-                table head=\hline Noise & $N$ & \multicolumn{2}{c|}{RMSE (\%)} & \multicolumn{2}{c|}{$\sigma_{f(\textbf{x})}$ (\%)} & \multicolumn{2}{c|}{Outliers (\%)} \\\hline, 
+                \csvreader[tabular=|c|c|r|r|, 
+                table head=\hline $N$ & $\sigma_{\epsilon}$ (\%) & \multicolumn{2}{c|}{$S_{\vr{1}}$ (\%)} \\\hline, 
                 table foot=\hline, head=false]
-                {results/sin.1.rom.5/amalgamated.test_stats.csv}
+                {results/sin.1.5.rom/amalgamated.S.csv}
                 {}
-                {\csvcoli & \csvcolii & \csvcoliii & \csvcoliv & \csvcolv & \csvcolvi & \csvcolvii & \csvcolviii}                
-                \caption{\label{tab:Results:Sin:testA} Predictive performance of initial GPs (left sub-columns) after reducing dimensionality (right sub-columns), for the sine function. Three measures are shown: the Root Mean Square Error, the GPs' predictive standard deviation $\sigma_{f(\textbf{x})}$, and the percentage of observations outside $\pm 2 \sigma_{f(\textbf{x})}$.}
+                {\csvcolii & \csvcoli & \csvcoliii & \csvcolviii}
+                \caption{\label{tab:Results:Sin:Sobol} Closed Sobol' indices calculated from initial (left sub-column) and optimized (right sub-column) GPs, for the sine function.}
+            \end{table}
+
+            \begin{table}[H]
+                \centering
+                \csvreader[tabular=|c|c|r|r|r|r|r|r|r|r|r|, 
+                table head=\hline $N$ & $\sigma_{\epsilon}$ (\%) & \multicolumn{3}{c|}{RMSE (\%)} & \multicolumn{3}{c|}{$\sigma_{f(\textbf{x})}$ (\%)} & \multicolumn{3}{c|}{Outliers (\%)} \\\hline, 
+                table foot=\hline, head=false]
+                {results/sin.1.5.rom/amalgamated.test_stats.csv}
+                {}
+                {\csvcolii & \csvcoli & \csvcoliii & \csvcolvi & \csvcolix & \csvcoliv & \csvcolvii & \csvcolx & \csvcolv & \csvcolviii & \csvcolxi}
+                \caption{\label{tab:Results:Sin:testA} Predictive performance of initial GPs (left sub-columns) after optimizing the input basis (middle sub-columns) and reducing dimensionality (right sub-columns), for the sine function. Three measures are shown: the Root Mean Square Error, the GPs' predictive standard deviation $\sigma_{f(\textbf{x})}$, and the percentage of observations outside $\pm 2 \sigma_{f(\textbf{x})}$.}
             \end{table}
 
             Applying a random rotation \M{\Phi_{\vr{R}}}, the exact Sobol' indices are recovered to within $10^{-8}$ after 3 iterations. The predictive performance is shown in \cref{tab:Results:Sin:testB} , the 1D active subspace measures in \cref{tab:Results:Sin:Theta}.
 
             \begin{table}[H]
                 \centering
-                \csvreader[tabular=|r|r|r|r|r|r|r|r|, 
-                table head=\hline Noise & $N$ & \multicolumn{2}{c|}{RMSE (\%)} & \multicolumn{2}{c|}{$\sigma_{f(\textbf{x})}$ (\%)} & \multicolumn{2}{c|}{Outliers (\%)} \\\hline, 
+                \csvreader[tabular=|c|c|r|r|r|, 
+                table head=\hline $N$ & $\sigma_{\epsilon}$ (\%) & \multicolumn{3}{c|}{$S_{\vr{1}}$ (\%)} \\\hline, 
                 table foot=\hline, head=false]
-                {results/sin.1.random.5/amalgamated.test_stats.csv}
+                {results/sin.1.5.random/amalgamated.amalgamated.S.csv}
                 {}
-                {\csvcoli & \csvcolii & \csvcoliii & \csvcoliv & \csvcolv & \csvcolvi & \csvcolvii & \csvcolviii}                
+                {\csvcolii & \csvcoli & \csvcolxiv & \csvcolxix & \csvcolviii}
+                \caption{\label{tab:Results:Sin:Sobol} Closed Sobol' indices calculated from initial (left sub-column) and optimized (middle sub-column) GPs, for the randomly rotated sine function. For comparison the Sobol' indices for the optimized GP on the unrotated sine function are shown in the rightmost sub-column.}
+            \end{table}
+
+            \begin{table}[H]
+                \centering
+                \csvreader[tabular=|c|c|r|r|r|r|r|r|r|r|r|, 
+                table head=\hline $N$ & $\sigma_{\epsilon}$ (\%) & \multicolumn{3}{c|}{RMSE (\%)} & \multicolumn{3}{c|}{$\sigma_{f(\textbf{x})}$ (\%)} & \multicolumn{3}{c|}{Outliers (\%)} \\\hline, 
+                table foot=\hline, head=false]
+                {results/sin.1.5.random/amalgamated.test_stats.csv}
+                {}
+                {\csvcolii & \csvcoli & \csvcoliii & \csvcolvi & \csvcolix & \csvcoliv & \csvcolvii & \csvcolx & \csvcolv & \csvcolviii & \csvcolxi}        
                 \caption{\label{tab:Results:Sin:testB} Predictive performance of initial GPs (left sub-columns) after reducing dimensionality (right sub-columns), for the sine function with randomly rotated inputs. Three measures are shown: the Root Mean Square Error, the GPs' predictive standard deviation $\sigma_{f(\textbf{x})}$, and the percentage of observations outside $\pm 2 \sigma_{f(\textbf{x})}$.}
             \end{table}
 
@@ -487,8 +509,8 @@
                 \centering
                 \csvreader[tabular=|r|r|r|, 
                 table head=\hline Noise & $N$ & $\Sigma_1(\vr{u^{\dag}})$ \\\hline, 
-                table foot=\hline]
-                {results/sin.1.random.5/rom.optimized.formatted.Theta_Analyzed.csv}
+                table foot=\hline, head=false]
+                {results/sin.1.5.random/amalgamated.Theta_Analyzed.csv}
                 {}{\csvcoli & \csvcolii & \csvcoliii}                
                 \caption{\label{tab:Results:Sin:Theta} The active subspace measures $\Sigma_m(\vr{u^{\dag}})$ for the sine function, comparing optimization of unrotated and randomly rotated inputs.} 
             \end{table}
@@ -505,122 +527,123 @@
 
             \begin{table}[H]
                 \centering
-                \csvreader[tabular=|r|r|r|r|r|r|r|r|, 
-                table head=\hline Noise & $N$ & \multicolumn{2}{c|}{RMSE (\%)} & \multicolumn{2}{c|}{$\sigma_{f(\textbf{x})}$ (\%)} & \multicolumn{2}{c|}{Outliers (\%)} \\\hline, 
+                \csvreader[tabular=|c|c|r|r|r|r|r|r|r|r|r|, 
+                table head=\hline $N$ & $\sigma_{\epsilon}$ (\%) & \multicolumn{3}{c|}{RMSE (\%)} & \multicolumn{3}{c|}{$\sigma_{f(\textbf{x})}$ (\%)} & \multicolumn{3}{c|}{Outliers (\%)} \\\hline, 
                 table foot=\hline, head=false]
-                {results/sin.2.rom.5/amalgamated.test_stats.csv}
+                {results/sin.2.5.rom/amalgamated.test_stats.csv}
                 {}
-                {\csvcoli & \csvcolii & \csvcoliii & \csvcoliv & \csvcolv & \csvcolvi & \csvcolvii & \csvcolviii}                
+                {\csvcolii & \csvcoli & \csvcoliii & \csvcolvi & \csvcolix & \csvcoliv & \csvcolvii & \csvcolx & \csvcolv & \csvcolviii & \csvcolxi}        
                 \caption{\label{tab:Results:Decoup:testA} Predictive performance of initial GPs (left sub-columns) after reducing dimensionality (right sub-columns), for the decoupled Ishigami function. Three measures are shown: the Root Mean Square Error, the GPs' predictive standard deviation $\sigma_{f(\textbf{x})}$, and the percentage of observations outside $\pm 2 \sigma_{f(\textbf{x})}$.}
             \end{table}
 
-            Applying a random rotation \M{\Phi_{\vr{R}}}, ????. The predictive performance is shown in \cref{tab:Results:Decoup:testB} , the 1D active subspace measures are in \cref{tab:Results:Decoup:Theta}.
-            \begin{table}[H]
-                \centering
-                \csvreader[tabular=|r|r|r|r|r|r|r|r|, 
-                table head=\hline Noise & $N$ & \multicolumn{2}{c|}{RMSE (\%)} & \multicolumn{2}{c|}{$\sigma_{f(\textbf{x})}$ (\%)} & \multicolumn{2}{c|}{Outliers (\%)} \\\hline, 
-                table foot=\hline, head=false]
-                {results/sin.2.random.5/amalgamated.test_stats.csv}
-                {}
-                {\csvcoli & \csvcolii & \csvcoliii & \csvcoliv & \csvcolv & \csvcolvi & \csvcolvii & \csvcolviii}                
-                \caption{\label{tab:Results:Decoup:testB} Predictive performance of initial GPs (left sub-columns) after reducing dimensionality (right sub-columns), for the decoupled Ishigami function with randomly rotated inputs. Three measures are shown: the Root Mean Square Error, the GPs' predictive standard deviation $\sigma_{f(\textbf{x})}$, and the percentage of observations outside $\pm 2 \sigma_{f(\textbf{x})}$.}
+        %     Applying a random rotation \M{\Phi_{\vr{R}}}, ????. The predictive performance is shown in \cref{tab:Results:Decoup:testB} , the 1D active subspace measures are in \cref{tab:Results:Decoup:Theta}.
+
+        \begin{table}[H]
+            \centering
+            \csvreader[tabular=|c|c|r|r|r|r|r|r|r|r|r|, 
+            table head=\hline $N$ & $\sigma_{\epsilon}$ (\%) & \multicolumn{3}{c|}{RMSE (\%)} & \multicolumn{3}{c|}{$\sigma_{f(\textbf{x})}$ (\%)} & \multicolumn{3}{c|}{Outliers (\%)} \\\hline, 
+            table foot=\hline, head=false]
+            {results/sin.2.5.random/amalgamated.test_stats.csv}
+            {}
+            {\csvcolii & \csvcoli & \csvcoliii & \csvcolvi & \csvcolix & \csvcoliv & \csvcolvii & \csvcolx & \csvcolv & \csvcolviii & \csvcolxi}        
+            \caption{\label{tab:Results:Decoup:testB} Predictive performance of initial GPs (left sub-columns) after reducing dimensionality (right sub-columns), for the decoupled Ishigami function with randomly rotated inputs. Three measures are shown: the Root Mean Square Error, the GPs' predictive standard deviation $\sigma_{f(\textbf{x})}$, and the percentage of observations outside $\pm 2 \sigma_{f(\textbf{x})}$.}
             \end{table}
 
             \begin{table}[H]
                 \centering
                 \csvreader[tabular=|r|r|r|r|, 
                 table head=\hline Noise & $N$ & $\Sigma_1(\vr{u^{\dag}})$  & $\Sigma_2(\vr{u^{\dag}})$ \\\hline, 
-                table foot=\hline]
-                {results/sin.2.random.5/rom.optimized.formatted.Theta_Analyzed.csv}
+                table foot=\hline, head=false]
+                {results/sin.2.5.random/amalgamated.Theta_Analyzed.csv}
                 {}{\csvcoli & \csvcolii & \csvcoliii & \csvcoliv}                
                 \caption{\label{tab:Results:Decoup:Theta} The active subspace measures $\Sigma_m(\vr{u^{\dag}})$ for the decoupled Ishigami function, comparing optimization of unrotated and randomly rotated inputs.} 
             \end{table}
 
-        \subsection{Ishigami Function} \label{sub:Results:Ishigami}
-            \begin{equation} \label{def:Ishigami}
-                f(\vr{x}) \deq \left(1 + b \vr{x}_3^4\right) \sin(\vr{x}_1) + a \sin^{2}(\vr{x}_2)
-            \end{equation}
-            \begin{gather*}
-                a = 7.0 \QT{;} b = 0.1 \\
-                S_{\vr{1}} = 0.3139 \QT{;}S_{\vr{2}} = 0.7563 \QT{;} S_{\vr{3}} = 1
-            \end{gather*}
-            Fitting an initial GP recovers the exact Sobol' indices to within an accuracy of 0.04 with $N=100$ training data, gradually improving to 0.002 with $N=1600$, which does not improve on optimizing the input basis. The predictive performance is shown in \cref{tab:Results:ishigami:testA}.
+        % \subsection{Ishigami Function} \label{sub:Results:Ishigami}
+        %     \begin{equation} \label{def:Ishigami}
+        %         f(\vr{x}) \deq \left(1 + b \vr{x}_3^4\right) \sin(\vr{x}_1) + a \sin^{2}(\vr{x}_2)
+        %     \end{equation}
+        %     \begin{gather*}
+        %         a = 7.0 \QT{;} b = 0.1 \\
+        %         S_{\vr{1}} = 0.3139 \QT{;}S_{\vr{2}} = 0.7563 \QT{;} S_{\vr{3}} = 1
+        %     \end{gather*}
+        %     Fitting an initial GP recovers the exact Sobol' indices to within an accuracy of 0.04 with $N=100$ training data, gradually improving to 0.002 with $N=1600$, which does not improve on optimizing the input basis. The predictive performance is shown in \cref{tab:Results:ishigami:testA}.
 
-            \begin{table}[H]
-                \centering
-                \csvreader[tabular=|r|r|r|r|r|r|r|r|, 
-                table head=\hline Noise & $N$ & \multicolumn{2}{c|}{RMSE (\%)} & \multicolumn{2}{c|}{$\sigma_{f(\textbf{x})}$ (\%)} & \multicolumn{2}{c|}{Outliers (\%)} \\\hline, 
-                table foot=\hline, head=false]
-                {results/ishigami.rom.5/amalgamated.test_stats.csv}
-                {}
-                {\csvcoli & \csvcolii & \csvcoliii & \csvcoliv & \csvcolv & \csvcolvi & \csvcolvii & \csvcolviii}                
-                \caption{\label{tab:Results:ishigami:testA} Predictive performance of initial GPs (left sub-columns) after reducing dimensionality (right sub-columns), for the Ishigami function. Three measures are shown: the Root Mean Square Error, the GPs' predictive standard deviation $\sigma_{f(\textbf{x})}$, and the percentage of observations outside $\pm 2 \sigma_{f(\textbf{x})}$.}
-            \end{table}
+        %     \begin{table}[H]
+        %         \centering
+        %         \csvreader[tabular=|r|r|r|r|r|r|r|r|, 
+        %         table head=\hline Noise & $N$ & \multicolumn{2}{c|}{RMSE (\%)} & \multicolumn{2}{c|}{$\sigma_{f(\textbf{x})}$ (\%)} & \multicolumn{2}{c|}{Outliers (\%)} \\\hline, 
+        %         table foot=\hline, head=false]
+        %         {results/ishigami.rom.5/amalgamated.test_stats.csv}
+        %         {}
+        %         {\csvcoli & \csvcolii & \csvcoliii & \csvcoliv & \csvcolv & \csvcolvi & \csvcolvii & \csvcolviii}                
+        %         \caption{\label{tab:Results:ishigami:testA} Predictive performance of initial GPs (left sub-columns) after reducing dimensionality (right sub-columns), for the Ishigami function. Three measures are shown: the Root Mean Square Error, the GPs' predictive standard deviation $\sigma_{f(\textbf{x})}$, and the percentage of observations outside $\pm 2 \sigma_{f(\textbf{x})}$.}
+        %     \end{table}
 
-            Applying a random rotation \M{\Phi_{\vr{R}}}, the exact Sobol' indices are recovered to within $10^{-8}$ after 3 iterations. The predictive improvement is shown in \cref{tab:Results:ishigami:testB} , the 1D active subspace measures are in \cref{tab:Results:ishigami:Theta}.
-            \begin{table}[H]
-                \centering
-                \csvreader[tabular=|r|r|r|r|r|r|r|r|, 
-                table head=\hline Noise & $N$ & \multicolumn{2}{c|}{RMSE (\%)} & \multicolumn{2}{c|}{$\sigma_{f(\textbf{x})}$ (\%)} & \multicolumn{2}{c|}{Outliers (\%)} \\\hline, 
-                table foot=\hline, head=false]
-                {results/ishigami.random.5/amalgamated.test_stats.csv}
-                {}
-                {\csvcoli & \csvcolii & \csvcoliii & \csvcoliv & \csvcolv & \csvcolvi & \csvcolvii & \csvcolviii}                
-                \caption{\label{tab:Results:ishigami:testB} Predictive performance of initial GPs (left sub-columns) after reducing dimensionality (right sub-columns), for the Ishigami function with randomly rotated inputs. Three measures are shown: the Root Mean Square Error, the GPs' predictive standard deviation $\sigma_{f(\textbf{x})}$, and the percentage of observations outside $\pm 2 \sigma_{f(\textbf{x})}$.}
-            \end{table}
+        %     Applying a random rotation \M{\Phi_{\vr{R}}}, the exact Sobol' indices are recovered to within $10^{-8}$ after 3 iterations. The predictive improvement is shown in \cref{tab:Results:ishigami:testB} , the 1D active subspace measures are in \cref{tab:Results:ishigami:Theta}.
+        %     \begin{table}[H]
+        %         \centering
+        %         \csvreader[tabular=|r|r|r|r|r|r|r|r|, 
+        %         table head=\hline Noise & $N$ & \multicolumn{2}{c|}{RMSE (\%)} & \multicolumn{2}{c|}{$\sigma_{f(\textbf{x})}$ (\%)} & \multicolumn{2}{c|}{Outliers (\%)} \\\hline, 
+        %         table foot=\hline, head=false]
+        %         {results/ishigami.random.5/amalgamated.test_stats.csv}
+        %         {}
+        %         {\csvcoli & \csvcolii & \csvcoliii & \csvcoliv & \csvcolv & \csvcolvi & \csvcolvii & \csvcolviii}                
+        %         \caption{\label{tab:Results:ishigami:testB} Predictive performance of initial GPs (left sub-columns) after reducing dimensionality (right sub-columns), for the Ishigami function with randomly rotated inputs. Three measures are shown: the Root Mean Square Error, the GPs' predictive standard deviation $\sigma_{f(\textbf{x})}$, and the percentage of observations outside $\pm 2 \sigma_{f(\textbf{x})}$.}
+        %     \end{table}
 
-            \begin{table}[H]
-                \centering
-                \csvreader[tabular=|r|r|r|r|r|, 
-                table head=\hline Noise & $N$ & $\Sigma_1(\vr{u^{\dag}})$ & $\Sigma_2(\vr{u^{\dag}})$ & $\Sigma_3(\vr{u^{\dag}})$ \\\hline, 
-                table foot=\hline]
-                {results/ishigami.random.5/rom.optimized.formatted.Theta_Analyzed.csv}
-                {}{\csvcoli & \csvcolii & \csvcoliii & \csvcoliv & \csvcolv}                
-                \caption{\label{tab:Results:ishigami:Theta} The active subspace measures $\Sigma_m(\vr{u^{\dag}})$ for the Ishigami function, comparing optimization of unrotated and randomly rotated inputs.} 
-            \end{table}
+        %     \begin{table}[H]
+        %         \centering
+        %         \csvreader[tabular=|r|r|r|r|r|, 
+        %         table head=\hline Noise & $N$ & $\Sigma_1(\vr{u^{\dag}})$ & $\Sigma_2(\vr{u^{\dag}})$ & $\Sigma_3(\vr{u^{\dag}})$ \\\hline, 
+        %         table foot=\hline]
+        %         {results/ishigami.random.5/rom.optimized.formatted.Theta_Analyzed.csv}
+        %         {}{\csvcoli & \csvcolii & \csvcoliii & \csvcoliv & \csvcolv}                
+        %         \caption{\label{tab:Results:ishigami:Theta} The active subspace measures $\Sigma_m(\vr{u^{\dag}})$ for the Ishigami function, comparing optimization of unrotated and randomly rotated inputs.} 
+        %     \end{table}
 
-        \subsection{Sobol' G Function} \label{sub:Results:sobol_g}
-            \begin{equation} \label{def:sobol_g}
-                f(\vr{x}) \deq \prod_{i=1}^{D}{\frac{\modulus{4\vr{x}_i - 2} + \vr{a}_{i}}{1+\vr{a}_{i}}}
-            \end{equation}
-            \begin{gather*}
-                \vr{a}_{i} = (i-1)/2 \\
-                S_{\vr{1}} = 0.4107 \QT{;}S_{\vr{2}} = 0.6541 \QT{;} S_{\vr{3}} = 0.8113 \QT{;} S_{\vr{4}} = 0.9203 \QT{;} S_{\vr{5}} = 1
-            \end{gather*}
-            Fitting an initial GP recovers the exact Sobol' indices to within an accuracy of 0.03, which does not improve on optimizing the input basis. The predictive improvement is shown in \cref{tab:Results:sobol_g:testA}.
+        % \subsection{Sobol' G Function} \label{sub:Results:sobol_g}
+        %     \begin{equation} \label{def:sobol_g}
+        %         f(\vr{x}) \deq \prod_{i=1}^{D}{\frac{\modulus{4\vr{x}_i - 2} + \vr{a}_{i}}{1+\vr{a}_{i}}}
+        %     \end{equation}
+        %     \begin{gather*}
+        %         \vr{a}_{i} = (i-1)/2 \\
+        %         S_{\vr{1}} = 0.4107 \QT{;}S_{\vr{2}} = 0.6541 \QT{;} S_{\vr{3}} = 0.8113 \QT{;} S_{\vr{4}} = 0.9203 \QT{;} S_{\vr{5}} = 1
+        %     \end{gather*}
+        %     Fitting an initial GP recovers the exact Sobol' indices to within an accuracy of 0.03, which does not improve on optimizing the input basis. The predictive improvement is shown in \cref{tab:Results:sobol_g:testA}.
 
-            \begin{table}[H]
-                \centering
-                \csvreader[tabular=|r|r|r|r|r|r|r|r|, 
-                table head=\hline Noise & $N$ & \multicolumn{2}{c|}{RMSE (\%)} & \multicolumn{2}{c|}{$\sigma_{f(\textbf{x})}$ (\%)} & \multicolumn{2}{c|}{Outliers (\%)} \\\hline, 
-                table foot=\hline, head=false]
-                {results/sobol_g.rom.5/amalgamated.test_stats.csv}
-                {}
-                {\csvcoli & \csvcolii & \csvcoliii & \csvcoliv & \csvcolv & \csvcolvi & \csvcolvii & \csvcolviii}                
-                \caption{\label{tab:Results:sobol_g:testA} Predictive performance of initial GPs (left sub-columns) after reducing dimensionality (right sub-columns), for the sobol' G function. Three measures are shown: the Root Mean Square Error, the GPs' predictive standard deviation $\sigma_{f(\textbf{x})}$, and the percentage of observations outside $\pm 2 \sigma_{f(\textbf{x})}$.}
-            \end{table}
+        %     \begin{table}[H]
+        %         \centering
+        %         \csvreader[tabular=|r|r|r|r|r|r|r|r|, 
+        %         table head=\hline Noise & $N$ & \multicolumn{2}{c|}{RMSE (\%)} & \multicolumn{2}{c|}{$\sigma_{f(\textbf{x})}$ (\%)} & \multicolumn{2}{c|}{Outliers (\%)} \\\hline, 
+        %         table foot=\hline, head=false]
+        %         {results/sobol_g.rom.5/amalgamated.test_stats.csv}
+        %         {}
+        %         {\csvcoli & \csvcolii & \csvcoliii & \csvcoliv & \csvcolv & \csvcolvi & \csvcolvii & \csvcolviii}                
+        %         \caption{\label{tab:Results:sobol_g:testA} Predictive performance of initial GPs (left sub-columns) after reducing dimensionality (right sub-columns), for the sobol' G function. Three measures are shown: the Root Mean Square Error, the GPs' predictive standard deviation $\sigma_{f(\textbf{x})}$, and the percentage of observations outside $\pm 2 \sigma_{f(\textbf{x})}$.}
+        %     \end{table}
 
-            Applying a random rotation \M{\Phi_{\vr{R}}}, the exact Sobol' indices are recovered to within $10^{-8}$ after 3 iterations. The predictive improvement is shown in \cref{tab:Results:sobol_g:testB} , the 1D active subspace measures are in \cref{tab:Results:sobol_g:Theta}.
-            \begin{table}[H]
-                \centering
-                \csvreader[tabular=|r|r|r|r|r|r|r|r|, 
-                table head=\hline Noise & $N$ & \multicolumn{2}{c|}{RMSE (\%)} & \multicolumn{2}{c|}{$\sigma_{f(\textbf{x})}$ (\%)} & \multicolumn{2}{c|}{Outliers (\%)} \\\hline, 
-                table foot=\hline, head=false]
-                {results/sobol_g.random.5/amalgamated.test_stats.csv}
-                {}
-                {\csvcoli & \csvcolii & \csvcoliii & \csvcoliv & \csvcolv & \csvcolvi & \csvcolvii & \csvcolviii}                
-                \caption{\label{tab:Results:sobol_g:testB} Predictive performance of initial GPs (left sub-columns) after reducing dimensionality (right sub-columns), for the sobol' G function with randomly rotated inputs. Three measures are shown: the Root Mean Square Error, the GPs' predictive standard deviation $\sigma_{f(\textbf{x})}$, and the percentage of observations outside $\pm 2 \sigma_{f(\textbf{x})}$.}
-            \end{table}
+        %     Applying a random rotation \M{\Phi_{\vr{R}}}, the exact Sobol' indices are recovered to within $10^{-8}$ after 3 iterations. The predictive improvement is shown in \cref{tab:Results:sobol_g:testB} , the 1D active subspace measures are in \cref{tab:Results:sobol_g:Theta}.
+        %     \begin{table}[H]
+        %         \centering
+        %         \csvreader[tabular=|r|r|r|r|r|r|r|r|, 
+        %         table head=\hline Noise & $N$ & \multicolumn{2}{c|}{RMSE (\%)} & \multicolumn{2}{c|}{$\sigma_{f(\textbf{x})}$ (\%)} & \multicolumn{2}{c|}{Outliers (\%)} \\\hline, 
+        %         table foot=\hline, head=false]
+        %         {results/sobol_g.random.5/amalgamated.test_stats.csv}
+        %         {}
+        %         {\csvcoli & \csvcolii & \csvcoliii & \csvcoliv & \csvcolv & \csvcolvi & \csvcolvii & \csvcolviii}                
+        %         \caption{\label{tab:Results:sobol_g:testB} Predictive performance of initial GPs (left sub-columns) after reducing dimensionality (right sub-columns), for the sobol' G function with randomly rotated inputs. Three measures are shown: the Root Mean Square Error, the GPs' predictive standard deviation $\sigma_{f(\textbf{x})}$, and the percentage of observations outside $\pm 2 \sigma_{f(\textbf{x})}$.}
+        %     \end{table}
 
-            \begin{table}[H]
-                \centering
-                \csvreader[tabular=|r|r|r|r|r|r|, 
-                table head=\hline Noise & $N$ & $\Sigma_1(\vr{u^{\dag}})$ & $\Sigma_2(\vr{u^{\dag}})$ & $\Sigma_3(\vr{u^{\dag}})$ & $\Sigma_4(\vr{u^{\dag}})$ \\\hline, 
-                table foot=\hline]
-                {results/sobol_g.random.5/rom.optimized.formatted.Theta_Analyzed.csv}
-                {}{\csvcoli & \csvcolii & \csvcoliii & \csvcoliv & \csvcolv & \csvcolvi}                
-                \caption{\label{tab:Results:sobol_g:Theta} The active subspace measures $\Sigma_m(\vr{u^{\dag}})$ for the Sobol' G function, comparing optimization of unrotated and randomly rotated inputs.} 
-            \end{table}
+        %     \begin{table}[H]
+        %         \centering
+        %         \csvreader[tabular=|r|r|r|r|r|r|, 
+        %         table head=\hline Noise & $N$ & $\Sigma_1(\vr{u^{\dag}})$ & $\Sigma_2(\vr{u^{\dag}})$ & $\Sigma_3(\vr{u^{\dag}})$ & $\Sigma_4(\vr{u^{\dag}})$ \\\hline, 
+        %         table foot=\hline]
+        %         {results/sobol_g.random.5/rom.optimized.formatted.Theta_Analyzed.csv}
+        %         {}{\csvcoli & \csvcolii & \csvcoliii & \csvcoliv & \csvcolv & \csvcolvi}                
+        %         \caption{\label{tab:Results:sobol_g:Theta} The active subspace measures $\Sigma_m(\vr{u^{\dag}})$ for the Sobol' G function, comparing optimization of unrotated and randomly rotated inputs.} 
+        %     \end{table}
 
     
     \section{Conclusion} \label{sec:Conclusion}

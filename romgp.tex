@@ -108,7 +108,7 @@
         %% \address{Address\fnref{label3}}
         %% \fntext[label3]{}
 
-        \title{Minimum  Reduced Order Modelling}
+        \title{Minimum Reduced Order Modelling}
 
         %% use optional labels to link authors explicitly to addresses:
         %% \author[label1,label2]{}
@@ -151,33 +151,33 @@
         
         The development of surrogate models usually requires an exponentially growing number of output results $y(\vr{x})$ throughout the input space as \M{M} increases: known as the curse of dimensionality. There is therefore a significant driver for methods with which to reduce the dimensionality of the input space, and so a more efficient means of generating the emulator. One way of selecting the directions of most influence is through the application of Global Sensitivity Analysis, however where these directions are not aligned with the input basis this resulting dimensionality reduction is sub-optimal (references).
         
-        As such a number of approaches to obtaining the optimal dimensionality reduction have been developed, which can broadly be catagorized through their use of different sensitivity measures. For example, \cite{Constantine.etal2014} proposed a means of calculating this optimal reduced dimensional space, the Active Subspace, through a derivative sensitivity measure. This was found to work very effectively for a broad range of problems but requires the information of the derivative which is typically not available for very large or complex systems. Liu and Guillas \cite{Liu.Guillas2017} suggested using gradient-based kernel reduction of a GP surrogate.
-        Minimum Average Variance Estimation (MAVE), such as that  proposed by Xia et al \cite{Xia.etal2002}, on the other hand effectively uses a variance-based sensitivity (statistical independence)
+        As such a number of approaches to obtaining the optimal dimensionality reduction have been developed, which can broadly be catagorized through their use of different sensitivity measures. For example, \cite{Constantine.etal2014} proposed a means of calculating this optimal reduced dimensional space, the Active Subspace, through a derivative sensitivity measure. This was found to work very effectively for a broad range of problems but requires the information of the derivative which is typically not available for very large or complex systems. Liu and Guillas \cite{Liu.Guillas2017} suggested using gradient-based kernel reduction of a GP surrogate.\todo{can you extend this a little?}
+        Minimum Average Variance Estimation (MAVE), such as that  proposed by Xia et al \cite{Xia.etal2002}, on the other hand effectively uses a variance-based sensitivity (statistical independence)\todo{can we have more detail and a critique here}
          
-        A key variance-based sensitivity measure are the Sobol' indices \cite{Sobol2001}, which is one of the most widely used approaches for GSA. With the increased popularity of using GPs as surrogate models, the main disadvantage to the Sobol' method was solved \cite{Oakley.OHagan2004,Jin.etal2004,Marrel.etal2009}. The use of GPs provided an alternative method to estimating multidimensional integrals using Monte Carlo schemes, which required 10,000 datapoints to reach 10\% precision \cite{Lamoureux.etal2014}. GPs enable semi-analytic evaluation of Sobol' indices, introduced by Jin et al. \cite{Jin.etal2004}. Before Oakley and O'Hagan \cite{Oakley.OHagan2004} used the global stochastic model of a GP, providing the calculations to produce random variables as a new sensitivity measures. Oakley and O'Hagan's \cite{Oakley.OHagan2004} model allows the sensitivity indices accuracy to be analysed due to the distribution of the variables. Marrel et al. \cite{Marrel.etal2009} extended this comparing them and building on the work from Oakley and O'Hagan \cite{Oakley.OHagan2004} leading to a novel algorithm which builds confidence intervals for the Sobol' indices. Marrel et al. \cite{Marrel.etal2009} tested both methods on toy functions providing results that show very accurate sensitivity indices and satisfactory confidence intervals from the second method. However, when the approach was illustrated on real data to provide a sensitivity analysis on radionuclide groundwater transport, it was found that the confidence intervals were inaccurate for very low indices due to overestimation of the lowest Sobol' indices.
+        A key variance-based sensitivity measure are the Sobol' indices \cite{Sobol2001}, which are one of the most widely used approaches for GSA. With the increased popularity of using GPs as surrogate models, the main disadvantage to the Sobol' method was solved \cite{Oakley.OHagan2004,Jin.etal2004,Marrel.etal2009}. The use of GPs provided an alternative method to estimating multidimensional integrals using Monte Carlo schemes, which required 10,000 datapoints to reach 10\% precision \cite{Lamoureux.etal2014}. GPs enable semi-analytic evaluation of Sobol' indices, introduced by Jin et al. \cite{Jin.etal2004}. Before Oakley and O'Hagan \cite{Oakley.OHagan2004} used the global stochastic model of a GP, providing the calculations to produce random variables as a new sensitivity measures. Oakley and O'Hagan's \cite{Oakley.OHagan2004} model allows the sensitivity indices accuracy to be analyzed due to the distribution of the variables. Marrel et al. \cite{Marrel.etal2009} extended this to develop a novel algorithm which builds confidence intervals for the Sobol' indices. Marrel et al. \cite{Marrel.etal2009} tested both methods on toy functions providing results that show very accurate sensitivity indices and satisfactory confidence intervals from the second method. However, when the approach was illustrated on real data to provide a sensitivity analysis on radionuclide groundwater transport, it was found that the confidence intervals were inaccurate for very low indices due to overestimation of the lowest Sobol' indices.
 
-        The purpose of this work is to present a Global Sensitivity Analysis based model order reduction approach, which uses 
+        The purpose of this work is to present a Global Sensitivity Analysis based model order reduction approach, which utilizes: 
         \begin{itemize}
-            \item A GP surrogate.
+            \item A dimensionally adaptive GP surrogate.
             \item Semi-analytic Sobol' indices for the surrogate.
-            \item Optimal dimension reduction (essentially locating the active subspace) by Sobol' index.
+            \item Optimal dimension reduction, essentially locating the active subspace, by Sobol' index.
         \end{itemize}
 
         This paper is organised as follows: \cref{sec:TheoryReview} presents a review of the concepts and measures that are used in this work. \cref{sec:Method} describes the approach developed, including the details of the calculation of the Sobol' indices and of the optimization of the basis of the optimal low dimensional subspace. \cref{sec:Results} presents the application of the method to a variety of test problems to assess its performance, while \cref{sec:Conclusion} summarises our findings and directions for future work. 
 
     \section{Review of Gaussian Processes and Global Sensitivity Analysis} \label{sec:TheoryReview}
         \subsection{Gaussian Process Surrogate}
-            In order to avoid the difficulty and expense in obtaining and analyzing response data from a computationally heavy model we adopt a Gaussian Process (GP) surrogate or emulator. The response $y(\vr{x})$ to arbitrarily fixed input is modelled as the sum $f(\vr{x})+e(\vr{x})$ of two Gaussian random variables encapsulating coherent signal and incoherent noise. The latter is characterized by a zero-mean distribution that is independent of the input:
+            In order to avoid the difficulty and expense of obtaining and analyzing response data from a computationally heavy model we adopt a GP surrogate or emulator. The response $y(\vr{x})$ to arbitrarily fixed input is modelled as the sum $f(\vr{x})+e(\vr{x})$ of two Gaussian random variables encapsulating coherent signal and incoherent noise. The latter is characterized by a zero-mean distribution that is independent of the input:
             \begin{equation*}
                 e(\vr{x}) \sim \gauss{0}{\sigma^{2}_\vr{e}}
             \end{equation*}
 
-            The signal $f(\vr{x})$ is characterized by its covariance kernel $\sigma^{2}_\vr{f} k(\vr{x}_{n},\vr{x})$ which measures the similarity between inputs $\vr{x}_{n}$ and $\vr{x}$, and propagates any similarity to $y(\vr{x}_{n})$ and $y(\vr{x})$. In the majority of applications, the kernel is naturally stationary, a function of $(\vr{x}-\vr{x}_{n})$ alone. We shall further assume that the kernel is twice differentiable at its maximum $(\vr{x}=\vr{x}_{n})$. Hence, the Hessian at the maximum must be symmetric negative semi-definite and therefore diagonalizes to
+            The signal $f(\vr{x})$ is characterized by its covariance kernel $\sigma^{2}_\vr{f} k(\vr{x}_{n},\vr{x})$ which measures the similarity between inputs $\vr{x}_{n}$ and $\vr{x}$, and propagates any similarity to $y(\vr{x}_{n})$ and $y(\vr{x})$. In the majority of applications, the kernel is naturally stationary, a function of $(\vr{x}-\vr{x}_{n})$ alone. We shall further assume that the kernel is twice differentiable at its maximum $(\vr{x}=\vr{x}_{n})$. Hence, the Hessian at the maximum must be symmetric negative semi-definite and therefore diagonalizes to:
             \begin{equation*}
                 \partial_{\vr{x}\vr{x}} \log k(\vr{x},\vr{x}) \deqr -\Theta^{\intercal}\Lambda^{-2}\Theta
             \end{equation*}
 
-            When $\modulus{\vr{x}-\vr{x}_{n}}$ is large the kernel value is miniscule in any any relevant direction. The kernel details are therefore largely irrelevant to the response \emph{any} time $\modulus{\vr{x}-\vr{x}_{n}}$ is large, advocating (if not justifying) the Taylor approximation
+            When $\modulus{\vr{x}-\vr{x}_{n}}$ is large the kernel value is miniscule in any relevant direction. The kernel details are therefore largely irrelevant to the response \emph{any} time $\modulus{\vr{x}-\vr{x}_{n}}$ is large, we therefore adopt the Taylor expansion:
             \begin{equation*}
                 k(\vr{x}_{n},\vr{x}) = 
                 \exp \left(-\frac
@@ -189,7 +189,7 @@
             Modes of response oscillating rapidly with $\vr{x}$ are interpreted as noise by the GP, as the kernel smoothes $y$ into $f$. Such regularization is often, but not always, desirable, to avoid wildly unreliable interpolation of an overfit regression.
 
         \subsection{Kernel Optimization}
-            In order to deal with the curse of dimensionality we propose to find orthogonal rotation matrix $\Theta$ and diagonal length-scale matrix $\Lambda$ which best fit observed responses $y(\vr{X}^{\intercal})$. The largest lengthscales in $\Lambda$ mark the least relevant directions that can be ignored. However, the best fit must optimize $M(M+1)/2+2$ hyperparameters simultaneously to determine $\Theta, \Lambda, \sigma^{2}_\vr{f}$ and $\sigma^{2}_\vr{e}$. As a direct optimization of such a large problem may result in obtaining only local optima. Exploratory grid search is astronomically expensive $O(\exp(M(M+1)/2)$, likewise any random sampling which is not hopelessly sparse. Perhaps for these reasons, $\Theta$ has always been fixed as identity in the literature. The lengthscales comprising $\Lambda$ are also usually identical, furnishing a radial basis function (RBF) kernel \cite{Sacks.etal1989}. The few studies where $\Lambda$ is not identical speak of an automatic relevance determination (ARD) kernel, with model order reduction in mind \cite{Wipf.Nagarajan2007, Neal1996}.
+            In order to deal with the curse of dimensionality we propose to find orthogonal rotation matrix $\Theta$ and diagonal length-scale matrix $\Lambda$ which best fit observed responses $y(\vr{X}^{\intercal})$. The largest lengthscales in $\Lambda$ mark the least relevant directions that can be ignored. However, the best fit must optimize $M(M+1)/2+2$ hyperparameters simultaneously to determine $\Theta, \Lambda, \sigma^{2}_\vr{f}$ and $\sigma^{2}_\vr{e}$. As a direct optimization of such a large problem may result in obtaining only local optima. As exploratory grid search is infeasibly expensive $O(\exp(M(M+1)/2)$, $\Theta$ has always been fixed as identity in the literature. The lengthscales comprising $\Lambda$ are also usually identical, furnishing a radial basis function (RBF) kernel \cite{Sacks.etal1989}. The few studies where $\Lambda$ is not identical speak of an automatic relevance determination (ARD) kernel, with model order reduction in mind \cite{Wipf.Nagarajan2007, Neal1996}.
 
         \subsection{Global Sensitivity Analysis}
             This paper proposes to achieve kernel optimization indirectly, via global sensitivity analysis (GSA).
@@ -201,7 +201,7 @@
             \begin{equation*}
                 S_{\vr{m}}((\Theta)_{\vr{m}\times\vr{M}}) \deq \var[\vr{x}]{\ev[\vr{x}]{\bar{f}(\vr{x}) \vert (\Theta \vr{x})_{\vr{m}}}} / \var[\vr{x}]{\bar{f}(\vr{x})} \leq 1
             \end{equation*}
-            to subspaces $(\Theta \vr{x})_{\vr{m}}$ of dimension $m\leq M$. These may be calculated analytically for the exponential quadratic kernel used here. To cure to the curse of dimensionality is to find $(\Theta)_{\vr{m}\times\vr{M}}$ such that $S_{\vr{m}} \approx 1$ for $m\ll M$. The rotation sub-matrix $(\Theta)_{\vr{m}\times\vr{M}}$ has a manageable number of elements if $m$ is small. This paper takes the most economical approach, maximizing $S_{\vr{m}}$ for $m=1,\ldots,M$ in turn, to find the most relevant direction, then the second most relevant, and so on. 
+            to subspaces $(\Theta \vr{x})_{\vr{m}}$ of dimension $m\leq M$. These may be calculated analytically for the exponential quadratic kernel used here, leaving us to find $(\Theta)_{\vr{m}\times\vr{M}}$ such that $S_{\vr{m}} \approx 1$ for $m\ll M$. The rotation sub-matrix $(\Theta)_{\vr{m}\times\vr{M}}$ has a manageable number of elements if $m$ is small. Here we take the most economical approach, maximizing $S_{\vr{m}}$ for $m=1,\ldots,M$ in turn, to find the most relevant direction, then the second most relevant, and so on. 
 
 
     \section{Methodology} \label{sec:Method}
@@ -366,8 +366,8 @@
                 \frac{\partial}{\partial\,(\Xi)_{m\times k}} = \frac{\partial}{\partial\,(\Xi)_{m\times k}} - 
                 \frac{(\Xi)_{m \times k}}{(\Xi)_{m \times m}}\frac{\partial}{\partial\,(\Xi)_{m\times m}}
             \end{equation}
-            which should be exploited by the optimizer as a powerful repellant to orthonormality violations.
-            This work uses a BFGS optimizer, fed an analytic Jacobian.
+            which should be exploited by the optimizer as a powerful repellant to orthonormality violations. This work uses the BFGS method
+	    \todo{reference implementation here} with an analytic Jacobian.
 
             Given these constraints, row $m$ is optimally determined by
             \begin{equation} \label{eq:Method:BO:OptimalRow}
@@ -381,13 +381,12 @@
                 \end{gathered}
             \end{equation}        
             ready to optimize row $m+1$. 
-            Optimization followed by incorporation is performed for $m=1,\ldots, M-1$ in turn to entirely optimize $\Theta$.
-            The later rows could be left unoptimized, though they are successively cheaper to obtain.
+            Optimization followed by incorporation is performed for $m=1,\ldots, M-1$ in turn to entirely optimize $\Theta$. The later rows could be left unoptimized, though they are successively cheaper to obtain.
     
         \subsection{Summary} \label{sub:Method:Summary}
-            The main loop of the algorithm is described i:
+            The main loop of the algorithm is described in \label{algo:Optimization:Algorithm}:
             
-            \begin{algorithm}
+            \begin{algorithm}\label{algo:Optimization:Algorithm}
             \caption{Summary of the basis optimization algorithm.}
                 \begin{algorithmic}[1]
                     \REPEAT
@@ -405,17 +404,15 @@
                 \end{algorithmic}
             \end{algorithm}
 
-            During testing the optimization in Step \ref{bum} is found to be prone to converge to local optima, especially in the first iteration or two of the outermost loop. An approach was therefore developed that the early iterations explore the behaviour of \M{(\Xi)_{m\times\vr{M}\setminus\vr{m}}} by grid or randomized search, before attempting exploitation by gradient descent).
+            During testing the optimization in Step \ref{bum} is found to be prone to converge to local optima, especially in the first iteration or two of the outermost loop. An approach was therefore developed where early iterations explore the behaviour of \M{(\Xi)_{m\times\vr{M}\setminus\vr{m}}} by grid or randomized search, before attempting exploitation by gradient descent.
 
-            As the input basis is updated at each step, \M{\vr{X} = \vr{U}} ultimately. 
-            The key output of the algorithm is the overall rotation \M{\Theta_{\Pi}} of the original basis for \vr{x} to the optimal basis for \vr{u}.
+            As the input basis is updated at each step, \M{\vr{X} = \vr{U}} ultimately. The key output of the algorithm is the overall rotation \M{\Theta_{\Pi}} of the original basis for \vr{x} to the optimal basis for \vr{u}.
                        
     \section{Results} \label{sec:Results}
-        In this section, the method described in \cref{sub:Method:Summary} is applied to a series of test functions to evaluate its performance. Each function takes $N \in \set{100, 200, 400, 800, 1600}$ data from a latin hypercube of $M=5$ input dimensions. Random noise $\epsilon(\vr{x}) \sim \mathsf{N}(0,\sigma_{\epsilon}^{2})$ is applied to the output, for $\sigma_{\epsilon} \in \set{10\%, 5\%, 1\%}$. All inputs and outputs are then standardized to mean 0, standard deviation 1 before folding.
-        All results are calculated as the mean over two folds (each with $N$ training data and $N$ test data, so predictions are rigorously cross-validated. 
+        In this section, the method described in \cref{sub:Method:Summary} is applied to a series of test functions to evaluate its performance. Each function takes $N \in {100, 200, 400, 800, 1600}$ data from a latin hypercube of $M=5$ input dimensions. All inputs and outputs are standardized to mean 0, standard deviation 1 before folding.
+        All results are calculated as the mean over two folds, each with $N$ training data and $N$ test data, so predictions are rigorously cross-validated. 
 
-        In each case an \M{N \times M} design matrix \vr{X} is sampled from a standard normal distribution (latin hypercube). 
-        The input to the test function \M{f\colon \lbrack x_-, x_+ \rbrack^{M} \to \st{R}} is generally constructed as
+        In each case an \M{N \times M} design matrix \vr{X} is sampled from a standard normal distribution (latin hypercube). The input to the test function \M{f\colon \lbrack x_-, x_+ \rbrack^{M} \to \st{R}} is generally constructed as
         \begin{equation} \label{def:Xhat}
             \vr{\hat{X}}^{\intercal} = (x_+ - x_-) c(\Phi \vr{X}^{\intercal}) + x_-(\vr{1})_{\vr{M} \times \vr{N}}
         \end{equation}
@@ -433,7 +430,7 @@
         \end{equation}
         However, this is congruence, not equality: different rotations might locate (excactly or nearly exactly) the same active subspace.
 
-        For each function, the intial GP fit is assessed by test statistics from independent data (from the other fold), together with errors in the calculated Sobol' indices. The latter are important as they at the heart of subsequent calculations. The input basis is then optimized, calculating $\Theta_{\vr{1}}$.
+        For each function, the intial GP fit is assessed by test statistics from independent data (from the other fold), together with errors in the calculated Sobol' indices; the latter are important as they at the heart of subsequent calculations. The input basis is then optimized, calculating $\Theta_{\vr{1}}$.
         A reduced dimensionality \M{\underline{M}} for the optimized basis is determined as 
         \begin{equation} \label{eq:Results:Mbar}
             \min \setbuilder{\underline{M} \leq M}{S_{\underline{\vr{M}}} \geq 0.90}
@@ -457,51 +454,29 @@
                 \lbrack x_-, x_+ \rbrack \deq \lbrack -\pi, +\pi \rbrack \\
                 S_{\vr{1}} = 1
             \end{gather*}
-            Fitting an initial GP recovers the exact Sobol' indices to within an accuracy of 0.005 (precision actually decreasing with the number of data). Optimizing the input basis improves this to $10^{-8}$, which can only be due to repeating GP regression as 4 iterations were run to optimize $\Theta$, even though convergence is immediate. The predictive improvement is shown in \cref{tab:Results:Sin:testA}.
+            Fitting an initial GP recovers the exact Sobol' indices to within an accuracy of 0.005 (precision actually decreasing with the number of data)\todo{why is this?}. Optimizing the input basis improves this to $10^{-8}$, which can only be due to repeating GP regression as 4 iterations were run to optimize $\Theta$, even though convergence is immediate\todo{why is this important?}. The predictive improvement is shown in \cref{tab:Results:Sin:testA}.
 
             \begin{table}[H]
                 \centering
-                \csvreader[tabular=|c|c|r|r|, 
-                table head=\hline $N$ & $\sigma_{\epsilon}$ (\%) & \multicolumn{2}{c|}{$S_{\vr{1}}$ (\%)} \\\hline, 
+                \csvreader[tabular=|r|r|r|r|r|r|r|r|, 
+                table head=\hline Noise & $N$ & \multicolumn{2}{c|}{RMSE (\%)} & \multicolumn{2}{c|}{$\sigma_{f(\textbf{x})}$ (\%)} & \multicolumn{2}{c|}{Outliers (\%)} \\\hline, 
                 table foot=\hline, head=false]
-                {results/sin.1.5.rom/amalgamated.S.csv}
+                {results/sin.1.rom.5/amalgamated.test_stats.csv}
                 {}
-                {\csvcolii & \csvcoli & \csvcoliii & \csvcolviii}
-                \caption{\label{tab:Results:Sin:Sobol} Closed Sobol' indices calculated from initial (left sub-column) and optimized (right sub-column) GPs, for the sine function.}
+                {\csvcoli & \csvcolii & \csvcoliii & \csvcoliv & \csvcolv & \csvcolvi & \csvcolvii & \csvcolviii}                
+                \caption{\label{tab:Results:Sin:testA} Predictive performance of initial GPs (left sub-columns) after reducing dimensionality (right sub-columns), for the sine function. Three measures are shown: the Root Mean Square Error, the GPs' predictive standard deviation $\sigma_{f(\textbf{x})}$, and the percentage of observations outside $\pm 2 \sigma_{f(\textbf{x})}$.}
             \end{table}
 
-            \begin{table}[H]
-                \centering
-                \csvreader[tabular=|c|c|r|r|r|r|r|r|r|r|r|, 
-                table head=\hline $N$ & $\sigma_{\epsilon}$ (\%) & \multicolumn{3}{c|}{RMSE (\%)} & \multicolumn{3}{c|}{$\sigma_{f(\textbf{x})}$ (\%)} & \multicolumn{3}{c|}{Outliers (\%)} \\\hline, 
-                table foot=\hline, head=false]
-                {results/sin.1.5.rom/amalgamated.test_stats.csv}
-                {}
-                {\csvcolii & \csvcoli & \csvcoliii & \csvcolvi & \csvcolix & \csvcoliv & \csvcolvii & \csvcolx & \csvcolv & \csvcolviii & \csvcolxi}
-                \caption{\label{tab:Results:Sin:testA} Predictive performance of initial GPs (left sub-columns) after optimizing the input basis (middle sub-columns) and reducing dimensionality (right sub-columns), for the sine function. Three measures are shown: the Root Mean Square Error, the GPs' predictive standard deviation $\sigma_{f(\textbf{x})}$, and the percentage of observations outside $\pm 2 \sigma_{f(\textbf{x})}$.}
-            \end{table}
-
-            Applying a random rotation \M{\Phi_{\vr{R}}}, the exact Sobol' indices are recovered to within $10^{-8}$ after 3 iterations. The predictive performance is shown in \cref{tab:Results:Sin:testB} , the 1D active subspace measures in \cref{tab:Results:Sin:Theta}.
+            Applying a random rotation \M{\Phi_{\vr{R}}}, the exact Sobol' indices are recovered to within $10^{-8}$ after 3 iterations. The predictive performance is shown in \cref{tab:Results:Sin:testB}, the 1D active subspace measures in \cref{tab:Results:Sin:Theta}\todo{what does this show me? You need to spell things out a little}.
 
             \begin{table}[H]
                 \centering
-                \csvreader[tabular=|c|c|r|r|r|, 
-                table head=\hline $N$ & $\sigma_{\epsilon}$ (\%) & \multicolumn{3}{c|}{$S_{\vr{1}}$ (\%)} \\\hline, 
+                \csvreader[tabular=|r|r|r|r|r|r|r|r|, 
+                table head=\hline Noise & $N$ & \multicolumn{2}{c|}{RMSE (\%)} & \multicolumn{2}{c|}{$\sigma_{f(\textbf{x})}$ (\%)} & \multicolumn{2}{c|}{Outliers (\%)} \\\hline, 
                 table foot=\hline, head=false]
-                {results/sin.1.5.random/amalgamated.amalgamated.S.csv}
+                {results/sin.1.random.5/amalgamated.test_stats.csv}
                 {}
-                {\csvcolii & \csvcoli & \csvcolxiv & \csvcolxix & \csvcolviii}
-                \caption{\label{tab:Results:Sin:Sobol} Closed Sobol' indices calculated from initial (left sub-column) and optimized (middle sub-column) GPs, for the randomly rotated sine function. For comparison the Sobol' indices for the optimized GP on the unrotated sine function are shown in the rightmost sub-column.}
-            \end{table}
-
-            \begin{table}[H]
-                \centering
-                \csvreader[tabular=|c|c|r|r|r|r|r|r|r|r|r|, 
-                table head=\hline $N$ & $\sigma_{\epsilon}$ (\%) & \multicolumn{3}{c|}{RMSE (\%)} & \multicolumn{3}{c|}{$\sigma_{f(\textbf{x})}$ (\%)} & \multicolumn{3}{c|}{Outliers (\%)} \\\hline, 
-                table foot=\hline, head=false]
-                {results/sin.1.5.random/amalgamated.test_stats.csv}
-                {}
-                {\csvcolii & \csvcoli & \csvcoliii & \csvcolvi & \csvcolix & \csvcoliv & \csvcolvii & \csvcolx & \csvcolv & \csvcolviii & \csvcolxi}        
+                {\csvcoli & \csvcolii & \csvcoliii & \csvcoliv & \csvcolv & \csvcolvi & \csvcolvii & \csvcolviii}                
                 \caption{\label{tab:Results:Sin:testB} Predictive performance of initial GPs (left sub-columns) after reducing dimensionality (right sub-columns), for the sine function with randomly rotated inputs. Three measures are shown: the Root Mean Square Error, the GPs' predictive standard deviation $\sigma_{f(\textbf{x})}$, and the percentage of observations outside $\pm 2 \sigma_{f(\textbf{x})}$.}
             \end{table}
 
@@ -509,8 +484,8 @@
                 \centering
                 \csvreader[tabular=|r|r|r|, 
                 table head=\hline Noise & $N$ & $\Sigma_1(\vr{u^{\dag}})$ \\\hline, 
-                table foot=\hline, head=false]
-                {results/sin.1.5.random/amalgamated.Theta_Analyzed.csv}
+                table foot=\hline]
+                {results/sin.1.random.5/rom.optimized.formatted.Theta_Analyzed.csv}
                 {}{\csvcoli & \csvcolii & \csvcoliii}                
                 \caption{\label{tab:Results:Sin:Theta} The active subspace measures $\Sigma_m(\vr{u^{\dag}})$ for the sine function, comparing optimization of unrotated and randomly rotated inputs.} 
             \end{table}
@@ -527,123 +502,122 @@
 
             \begin{table}[H]
                 \centering
-                \csvreader[tabular=|c|c|r|r|r|r|r|r|r|r|r|, 
-                table head=\hline $N$ & $\sigma_{\epsilon}$ (\%) & \multicolumn{3}{c|}{RMSE (\%)} & \multicolumn{3}{c|}{$\sigma_{f(\textbf{x})}$ (\%)} & \multicolumn{3}{c|}{Outliers (\%)} \\\hline, 
+                \csvreader[tabular=|r|r|r|r|r|r|r|r|, 
+                table head=\hline Noise & $N$ & \multicolumn{2}{c|}{RMSE (\%)} & \multicolumn{2}{c|}{$\sigma_{f(\textbf{x})}$ (\%)} & \multicolumn{2}{c|}{Outliers (\%)} \\\hline, 
                 table foot=\hline, head=false]
-                {results/sin.2.5.rom/amalgamated.test_stats.csv}
+                {results/sin.2.rom.5/amalgamated.test_stats.csv}
                 {}
-                {\csvcolii & \csvcoli & \csvcoliii & \csvcolvi & \csvcolix & \csvcoliv & \csvcolvii & \csvcolx & \csvcolv & \csvcolviii & \csvcolxi}        
+                {\csvcoli & \csvcolii & \csvcoliii & \csvcoliv & \csvcolv & \csvcolvi & \csvcolvii & \csvcolviii}                
                 \caption{\label{tab:Results:Decoup:testA} Predictive performance of initial GPs (left sub-columns) after reducing dimensionality (right sub-columns), for the decoupled Ishigami function. Three measures are shown: the Root Mean Square Error, the GPs' predictive standard deviation $\sigma_{f(\textbf{x})}$, and the percentage of observations outside $\pm 2 \sigma_{f(\textbf{x})}$.}
             \end{table}
 
-        %     Applying a random rotation \M{\Phi_{\vr{R}}}, ????. The predictive performance is shown in \cref{tab:Results:Decoup:testB} , the 1D active subspace measures are in \cref{tab:Results:Decoup:Theta}.
-
-        \begin{table}[H]
-            \centering
-            \csvreader[tabular=|c|c|r|r|r|r|r|r|r|r|r|, 
-            table head=\hline $N$ & $\sigma_{\epsilon}$ (\%) & \multicolumn{3}{c|}{RMSE (\%)} & \multicolumn{3}{c|}{$\sigma_{f(\textbf{x})}$ (\%)} & \multicolumn{3}{c|}{Outliers (\%)} \\\hline, 
-            table foot=\hline, head=false]
-            {results/sin.2.5.random/amalgamated.test_stats.csv}
-            {}
-            {\csvcolii & \csvcoli & \csvcoliii & \csvcolvi & \csvcolix & \csvcoliv & \csvcolvii & \csvcolx & \csvcolv & \csvcolviii & \csvcolxi}        
-            \caption{\label{tab:Results:Decoup:testB} Predictive performance of initial GPs (left sub-columns) after reducing dimensionality (right sub-columns), for the decoupled Ishigami function with randomly rotated inputs. Three measures are shown: the Root Mean Square Error, the GPs' predictive standard deviation $\sigma_{f(\textbf{x})}$, and the percentage of observations outside $\pm 2 \sigma_{f(\textbf{x})}$.}
+            Applying a random rotation \M{\Phi_{\vr{R}}}, ????\todo{update}. The predictive performance is shown in \cref{tab:Results:Decoup:testB} , the 1D active subspace measures are in \cref{tab:Results:Decoup:Theta}.\todo{What should I see here? Tell me what the important things are, even if they seem obvious to you}
+            \begin{table}[H]
+                \centering
+                \csvreader[tabular=|r|r|r|r|r|r|r|r|, 
+                table head=\hline Noise & $N$ & \multicolumn{2}{c|}{RMSE (\%)} & \multicolumn{2}{c|}{$\sigma_{f(\textbf{x})}$ (\%)} & \multicolumn{2}{c|}{Outliers (\%)} \\\hline, 
+                table foot=\hline, head=false]
+                {results/sin.2.random.5/amalgamated.test_stats.csv}
+                {}
+                {\csvcoli & \csvcolii & \csvcoliii & \csvcoliv & \csvcolv & \csvcolvi & \csvcolvii & \csvcolviii}                
+                \caption{\label{tab:Results:Decoup:testB} Predictive performance of initial GPs (left sub-columns) after reducing dimensionality (right sub-columns), for the decoupled Ishigami function with randomly rotated inputs. Three measures are shown: the Root Mean Square Error, the GPs' predictive standard deviation $\sigma_{f(\textbf{x})}$, and the percentage of observations outside $\pm 2 \sigma_{f(\textbf{x})}$.}
             \end{table}
 
             \begin{table}[H]
                 \centering
                 \csvreader[tabular=|r|r|r|r|, 
                 table head=\hline Noise & $N$ & $\Sigma_1(\vr{u^{\dag}})$  & $\Sigma_2(\vr{u^{\dag}})$ \\\hline, 
-                table foot=\hline, head=false]
-                {results/sin.2.5.random/amalgamated.Theta_Analyzed.csv}
+                table foot=\hline]
+                {results/sin.2.random.5/rom.optimized.formatted.Theta_Analyzed.csv}
                 {}{\csvcoli & \csvcolii & \csvcoliii & \csvcoliv}                
                 \caption{\label{tab:Results:Decoup:Theta} The active subspace measures $\Sigma_m(\vr{u^{\dag}})$ for the decoupled Ishigami function, comparing optimization of unrotated and randomly rotated inputs.} 
             \end{table}
 
-        % \subsection{Ishigami Function} \label{sub:Results:Ishigami}
-        %     \begin{equation} \label{def:Ishigami}
-        %         f(\vr{x}) \deq \left(1 + b \vr{x}_3^4\right) \sin(\vr{x}_1) + a \sin^{2}(\vr{x}_2)
-        %     \end{equation}
-        %     \begin{gather*}
-        %         a = 7.0 \QT{;} b = 0.1 \\
-        %         S_{\vr{1}} = 0.3139 \QT{;}S_{\vr{2}} = 0.7563 \QT{;} S_{\vr{3}} = 1
-        %     \end{gather*}
-        %     Fitting an initial GP recovers the exact Sobol' indices to within an accuracy of 0.04 with $N=100$ training data, gradually improving to 0.002 with $N=1600$, which does not improve on optimizing the input basis. The predictive performance is shown in \cref{tab:Results:ishigami:testA}.
+        \subsection{Ishigami Function} \label{sub:Results:Ishigami}
+            \begin{equation} \label{def:Ishigami}
+                f(\vr{x}) \deq \left(1 + b \vr{x}_3^4\right) \sin(\vr{x}_1) + a \sin^{2}(\vr{x}_2)
+            \end{equation}
+            \begin{gather*}
+                a = 7.0 \QT{;} b = 0.1 \\
+                S_{\vr{1}} = 0.3139 \QT{;}S_{\vr{2}} = 0.7563 \QT{;} S_{\vr{3}} = 1
+            \end{gather*}
+            Fitting an initial GP recovers the exact Sobol' indices to within an accuracy of 0.04 with $N=100$ training data, gradually improving to 0.002 with $N=1600$, which does not improve on optimizing the input basis. The predictive performance is shown in \cref{tab:Results:ishigami:testA}.
 
-        %     \begin{table}[H]
-        %         \centering
-        %         \csvreader[tabular=|r|r|r|r|r|r|r|r|, 
-        %         table head=\hline Noise & $N$ & \multicolumn{2}{c|}{RMSE (\%)} & \multicolumn{2}{c|}{$\sigma_{f(\textbf{x})}$ (\%)} & \multicolumn{2}{c|}{Outliers (\%)} \\\hline, 
-        %         table foot=\hline, head=false]
-        %         {results/ishigami.rom.5/amalgamated.test_stats.csv}
-        %         {}
-        %         {\csvcoli & \csvcolii & \csvcoliii & \csvcoliv & \csvcolv & \csvcolvi & \csvcolvii & \csvcolviii}                
-        %         \caption{\label{tab:Results:ishigami:testA} Predictive performance of initial GPs (left sub-columns) after reducing dimensionality (right sub-columns), for the Ishigami function. Three measures are shown: the Root Mean Square Error, the GPs' predictive standard deviation $\sigma_{f(\textbf{x})}$, and the percentage of observations outside $\pm 2 \sigma_{f(\textbf{x})}$.}
-        %     \end{table}
+            \begin{table}[H]
+                \centering
+                \csvreader[tabular=|r|r|r|r|r|r|r|r|, 
+                table head=\hline Noise & $N$ & \multicolumn{2}{c|}{RMSE (\%)} & \multicolumn{2}{c|}{$\sigma_{f(\textbf{x})}$ (\%)} & \multicolumn{2}{c|}{Outliers (\%)} \\\hline, 
+                table foot=\hline, head=false]
+                {results/ishigami.rom.5/amalgamated.test_stats.csv}
+                {}
+                {\csvcoli & \csvcolii & \csvcoliii & \csvcoliv & \csvcolv & \csvcolvi & \csvcolvii & \csvcolviii}                
+                \caption{\label{tab:Results:ishigami:testA} Predictive performance of initial GPs (left sub-columns) after reducing dimensionality (right sub-columns), for the Ishigami function. Three measures are shown: the Root Mean Square Error, the GPs' predictive standard deviation $\sigma_{f(\textbf{x})}$, and the percentage of observations outside $\pm 2 \sigma_{f(\textbf{x})}$.}
+            \end{table}
 
-        %     Applying a random rotation \M{\Phi_{\vr{R}}}, the exact Sobol' indices are recovered to within $10^{-8}$ after 3 iterations. The predictive improvement is shown in \cref{tab:Results:ishigami:testB} , the 1D active subspace measures are in \cref{tab:Results:ishigami:Theta}.
-        %     \begin{table}[H]
-        %         \centering
-        %         \csvreader[tabular=|r|r|r|r|r|r|r|r|, 
-        %         table head=\hline Noise & $N$ & \multicolumn{2}{c|}{RMSE (\%)} & \multicolumn{2}{c|}{$\sigma_{f(\textbf{x})}$ (\%)} & \multicolumn{2}{c|}{Outliers (\%)} \\\hline, 
-        %         table foot=\hline, head=false]
-        %         {results/ishigami.random.5/amalgamated.test_stats.csv}
-        %         {}
-        %         {\csvcoli & \csvcolii & \csvcoliii & \csvcoliv & \csvcolv & \csvcolvi & \csvcolvii & \csvcolviii}                
-        %         \caption{\label{tab:Results:ishigami:testB} Predictive performance of initial GPs (left sub-columns) after reducing dimensionality (right sub-columns), for the Ishigami function with randomly rotated inputs. Three measures are shown: the Root Mean Square Error, the GPs' predictive standard deviation $\sigma_{f(\textbf{x})}$, and the percentage of observations outside $\pm 2 \sigma_{f(\textbf{x})}$.}
-        %     \end{table}
+            Applying a random rotation \M{\Phi_{\vr{R}}}, the exact Sobol' indices are recovered to within $10^{-8}$ after 3 iterations. The predictive improvement is shown in \cref{tab:Results:ishigami:testB} , the 1D active subspace measures are in \cref{tab:Results:ishigami:Theta}.\todo{again, tell me what's interesting}
+            \begin{table}[H]
+                \centering
+                \csvreader[tabular=|r|r|r|r|r|r|r|r|, 
+                table head=\hline Noise & $N$ & \multicolumn{2}{c|}{RMSE (\%)} & \multicolumn{2}{c|}{$\sigma_{f(\textbf{x})}$ (\%)} & \multicolumn{2}{c|}{Outliers (\%)} \\\hline, 
+                table foot=\hline, head=false]
+                {results/ishigami.random.5/amalgamated.test_stats.csv}
+                {}
+                {\csvcoli & \csvcolii & \csvcoliii & \csvcoliv & \csvcolv & \csvcolvi & \csvcolvii & \csvcolviii}                
+                \caption{\label{tab:Results:ishigami:testB} Predictive performance of initial GPs (left sub-columns) after reducing dimensionality (right sub-columns), for the Ishigami function with randomly rotated inputs. Three measures are shown: the Root Mean Square Error, the GPs' predictive standard deviation $\sigma_{f(\textbf{x})}$, and the percentage of observations outside $\pm 2 \sigma_{f(\textbf{x})}$.}
+            \end{table}
 
-        %     \begin{table}[H]
-        %         \centering
-        %         \csvreader[tabular=|r|r|r|r|r|, 
-        %         table head=\hline Noise & $N$ & $\Sigma_1(\vr{u^{\dag}})$ & $\Sigma_2(\vr{u^{\dag}})$ & $\Sigma_3(\vr{u^{\dag}})$ \\\hline, 
-        %         table foot=\hline]
-        %         {results/ishigami.random.5/rom.optimized.formatted.Theta_Analyzed.csv}
-        %         {}{\csvcoli & \csvcolii & \csvcoliii & \csvcoliv & \csvcolv}                
-        %         \caption{\label{tab:Results:ishigami:Theta} The active subspace measures $\Sigma_m(\vr{u^{\dag}})$ for the Ishigami function, comparing optimization of unrotated and randomly rotated inputs.} 
-        %     \end{table}
+            \begin{table}[H]
+                \centering
+                \csvreader[tabular=|r|r|r|r|r|, 
+                table head=\hline Noise & $N$ & $\Sigma_1(\vr{u^{\dag}})$ & $\Sigma_2(\vr{u^{\dag}})$ & $\Sigma_3(\vr{u^{\dag}})$ \\\hline, 
+                table foot=\hline]
+                {results/ishigami.random.5/rom.optimized.formatted.Theta_Analyzed.csv}
+                {}{\csvcoli & \csvcolii & \csvcoliii & \csvcoliv & \csvcolv}                
+                \caption{\label{tab:Results:ishigami:Theta} The active subspace measures $\Sigma_m(\vr{u^{\dag}})$ for the Ishigami function, comparing optimization of unrotated and randomly rotated inputs.} 
+            \end{table}
 
-        % \subsection{Sobol' G Function} \label{sub:Results:sobol_g}
-        %     \begin{equation} \label{def:sobol_g}
-        %         f(\vr{x}) \deq \prod_{i=1}^{D}{\frac{\modulus{4\vr{x}_i - 2} + \vr{a}_{i}}{1+\vr{a}_{i}}}
-        %     \end{equation}
-        %     \begin{gather*}
-        %         \vr{a}_{i} = (i-1)/2 \\
-        %         S_{\vr{1}} = 0.4107 \QT{;}S_{\vr{2}} = 0.6541 \QT{;} S_{\vr{3}} = 0.8113 \QT{;} S_{\vr{4}} = 0.9203 \QT{;} S_{\vr{5}} = 1
-        %     \end{gather*}
-        %     Fitting an initial GP recovers the exact Sobol' indices to within an accuracy of 0.03, which does not improve on optimizing the input basis. The predictive improvement is shown in \cref{tab:Results:sobol_g:testA}.
+        \subsection{Sobol' G Function} \label{sub:Results:sobol_g}
+            \begin{equation} \label{def:sobol_g}
+                f(\vr{x}) \deq \prod_{i=1}^{D}{\frac{\modulus{4\vr{x}_i - 2} + \vr{a}_{i}}{1+\vr{a}_{i}}}
+            \end{equation}
+            \begin{gather*}
+                \vr{a}_{i} = (i-1)/2 \\
+                S_{\vr{1}} = 0.4107 \QT{;}S_{\vr{2}} = 0.6541 \QT{;} S_{\vr{3}} = 0.8113 \QT{;} S_{\vr{4}} = 0.9203 \QT{;} S_{\vr{5}} = 1
+            \end{gather*}
+            Fitting an initial GP recovers the exact Sobol' indices to within an accuracy of 0.03, which does not improve on optimizing the input basis. The predictive improvement is shown in \cref{tab:Results:sobol_g:testA}.
 
-        %     \begin{table}[H]
-        %         \centering
-        %         \csvreader[tabular=|r|r|r|r|r|r|r|r|, 
-        %         table head=\hline Noise & $N$ & \multicolumn{2}{c|}{RMSE (\%)} & \multicolumn{2}{c|}{$\sigma_{f(\textbf{x})}$ (\%)} & \multicolumn{2}{c|}{Outliers (\%)} \\\hline, 
-        %         table foot=\hline, head=false]
-        %         {results/sobol_g.rom.5/amalgamated.test_stats.csv}
-        %         {}
-        %         {\csvcoli & \csvcolii & \csvcoliii & \csvcoliv & \csvcolv & \csvcolvi & \csvcolvii & \csvcolviii}                
-        %         \caption{\label{tab:Results:sobol_g:testA} Predictive performance of initial GPs (left sub-columns) after reducing dimensionality (right sub-columns), for the sobol' G function. Three measures are shown: the Root Mean Square Error, the GPs' predictive standard deviation $\sigma_{f(\textbf{x})}$, and the percentage of observations outside $\pm 2 \sigma_{f(\textbf{x})}$.}
-        %     \end{table}
+            \begin{table}[H]
+                \centering
+                \csvreader[tabular=|r|r|r|r|r|r|r|r|, 
+                table head=\hline Noise & $N$ & \multicolumn{2}{c|}{RMSE (\%)} & \multicolumn{2}{c|}{$\sigma_{f(\textbf{x})}$ (\%)} & \multicolumn{2}{c|}{Outliers (\%)} \\\hline, 
+                table foot=\hline, head=false]
+                {results/sobol_g.rom.5/amalgamated.test_stats.csv}
+                {}
+                {\csvcoli & \csvcolii & \csvcoliii & \csvcoliv & \csvcolv & \csvcolvi & \csvcolvii & \csvcolviii}                
+                \caption{\label{tab:Results:sobol_g:testA} Predictive performance of initial GPs (left sub-columns) after reducing dimensionality (right sub-columns), for the sobol' G function. Three measures are shown: the Root Mean Square Error, the GPs' predictive standard deviation $\sigma_{f(\textbf{x})}$, and the percentage of observations outside $\pm 2 \sigma_{f(\textbf{x})}$.}
+            \end{table}
 
-        %     Applying a random rotation \M{\Phi_{\vr{R}}}, the exact Sobol' indices are recovered to within $10^{-8}$ after 3 iterations. The predictive improvement is shown in \cref{tab:Results:sobol_g:testB} , the 1D active subspace measures are in \cref{tab:Results:sobol_g:Theta}.
-        %     \begin{table}[H]
-        %         \centering
-        %         \csvreader[tabular=|r|r|r|r|r|r|r|r|, 
-        %         table head=\hline Noise & $N$ & \multicolumn{2}{c|}{RMSE (\%)} & \multicolumn{2}{c|}{$\sigma_{f(\textbf{x})}$ (\%)} & \multicolumn{2}{c|}{Outliers (\%)} \\\hline, 
-        %         table foot=\hline, head=false]
-        %         {results/sobol_g.random.5/amalgamated.test_stats.csv}
-        %         {}
-        %         {\csvcoli & \csvcolii & \csvcoliii & \csvcoliv & \csvcolv & \csvcolvi & \csvcolvii & \csvcolviii}                
-        %         \caption{\label{tab:Results:sobol_g:testB} Predictive performance of initial GPs (left sub-columns) after reducing dimensionality (right sub-columns), for the sobol' G function with randomly rotated inputs. Three measures are shown: the Root Mean Square Error, the GPs' predictive standard deviation $\sigma_{f(\textbf{x})}$, and the percentage of observations outside $\pm 2 \sigma_{f(\textbf{x})}$.}
-        %     \end{table}
+            Applying a random rotation \M{\Phi_{\vr{R}}}, the exact Sobol' indices are recovered to within $10^{-8}$ after 3 iterations. The predictive improvement is shown in \cref{tab:Results:sobol_g:testB} , the 1D active subspace measures are in \cref{tab:Results:sobol_g:Theta}.
+            \begin{table}[H]
+                \centering
+                \csvreader[tabular=|r|r|r|r|r|r|r|r|, 
+                table head=\hline Noise & $N$ & \multicolumn{2}{c|}{RMSE (\%)} & \multicolumn{2}{c|}{$\sigma_{f(\textbf{x})}$ (\%)} & \multicolumn{2}{c|}{Outliers (\%)} \\\hline, 
+                table foot=\hline, head=false]
+                {results/sobol_g.random.5/amalgamated.test_stats.csv}
+                {}
+                {\csvcoli & \csvcolii & \csvcoliii & \csvcoliv & \csvcolv & \csvcolvi & \csvcolvii & \csvcolviii}                
+                \caption{\label{tab:Results:sobol_g:testB} Predictive performance of initial GPs (left sub-columns) after reducing dimensionality (right sub-columns), for the sobol' G function with randomly rotated inputs. Three measures are shown: the Root Mean Square Error, the GPs' predictive standard deviation $\sigma_{f(\textbf{x})}$, and the percentage of observations outside $\pm 2 \sigma_{f(\textbf{x})}$.}
+            \end{table}
 
-        %     \begin{table}[H]
-        %         \centering
-        %         \csvreader[tabular=|r|r|r|r|r|r|, 
-        %         table head=\hline Noise & $N$ & $\Sigma_1(\vr{u^{\dag}})$ & $\Sigma_2(\vr{u^{\dag}})$ & $\Sigma_3(\vr{u^{\dag}})$ & $\Sigma_4(\vr{u^{\dag}})$ \\\hline, 
-        %         table foot=\hline]
-        %         {results/sobol_g.random.5/rom.optimized.formatted.Theta_Analyzed.csv}
-        %         {}{\csvcoli & \csvcolii & \csvcoliii & \csvcoliv & \csvcolv & \csvcolvi}                
-        %         \caption{\label{tab:Results:sobol_g:Theta} The active subspace measures $\Sigma_m(\vr{u^{\dag}})$ for the Sobol' G function, comparing optimization of unrotated and randomly rotated inputs.} 
-        %     \end{table}
+            \begin{table}[H]
+                \centering
+                \csvreader[tabular=|r|r|r|r|r|r|, 
+                table head=\hline Noise & $N$ & $\Sigma_1(\vr{u^{\dag}})$ & $\Sigma_2(\vr{u^{\dag}})$ & $\Sigma_3(\vr{u^{\dag}})$ & $\Sigma_4(\vr{u^{\dag}})$ \\\hline, 
+                table foot=\hline]
+                {results/sobol_g.random.5/rom.optimized.formatted.Theta_Analyzed.csv}
+                {}{\csvcoli & \csvcolii & \csvcoliii & \csvcoliv & \csvcolv & \csvcolvi}                
+                \caption{\label{tab:Results:sobol_g:Theta} The active subspace measures $\Sigma_m(\vr{u^{\dag}})$ for the Sobol' G function, comparing optimization of unrotated and randomly rotated inputs.} 
+            \end{table}
 
     
     \section{Conclusion} \label{sec:Conclusion}
